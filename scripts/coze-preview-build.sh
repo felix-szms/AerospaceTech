@@ -11,3 +11,7 @@ pnpm install
 
 # 生成课时页面（从 lessons/ 源文件生成 docs-site/lessons/ 页面）
 pnpm run gen-lessons
+
+# 构建站点（Vite 5.4.x dev server 处理 Vue SFC scoped CSS 的 calc() 存在解析 bug，
+# 预览采用构建后静态 serve 方式）
+pnpm run build
