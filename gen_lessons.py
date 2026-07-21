@@ -42,8 +42,9 @@ TOOL_LINKS = {
     15: ("🛰️ 轨道计算器", "/tools/orbit-calculator"),
 }
 
-OUTPUT_DIR = r"C:\zprojects\spacecourse\docs-site\lessons"
-SOURCE_BASE = r"C:\zprojects\spacecourse\lessons"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, "docs-site", "lessons")
+SOURCE_BASE = os.path.join(SCRIPT_DIR, "lessons")
 
 def read_and_strip(path):
     with open(path, "r", encoding="utf-8") as f:
