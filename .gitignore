@@ -1,0 +1,40 @@
+# 依赖
+node_modules/
+.pnp.*
+package-lock.json.bak
+
+# 构建产物（每次部署时重新生成）
+docs-site/.vitepress/dist/
+docs-site/.vitepress/cache/
+
+# 调试临时文件
+.debug-shots/
+*.log
+npm-debug.log*
+.tmp-*
+
+# 编辑器/系统
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# Python（如果使用 gen_lessons.py）
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# VitePress 临时
+.vitepress/cache/
+.temp/

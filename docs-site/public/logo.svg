@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="rocketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4fc3f7"/>
+      <stop offset="100%" stop-color="#0288d1"/>
+    </linearGradient>
+    <linearGradient id="flameGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffd54f"/>
+      <stop offset="50%" stop-color="#ff6b35"/>
+      <stop offset="100%" stop-color="#d32f2f"/>
+    </linearGradient>
+  </defs>
+  <!-- 背景圆 -->
+  <circle cx="32" cy="32" r="30" fill="#0a1929"/>
+  <!-- 星星 -->
+  <circle cx="12" cy="15" r="1" fill="white" opacity="0.8"/>
+  <circle cx="52" cy="18" r="0.8" fill="white" opacity="0.7"/>
+  <circle cx="48" cy="48" r="1.2" fill="white" opacity="0.6"/>
+  <circle cx="15" cy="45" r="0.7" fill="white" opacity="0.7"/>
+  <!-- 火箭主体 -->
+  <path d="M32 12 Q38 18 38 30 L38 42 L26 42 L26 30 Q26 18 32 12 Z" fill="url(#rocketGrad)"/>
+  <!-- 火箭窗口 -->
+  <circle cx="32" cy="26" r="3" fill="#0a1929" stroke="#4fc3f7" stroke-width="1"/>
+  <circle cx="32" cy="26" r="1.5" fill="#b388ff"/>
+  <!-- 火箭翼 -->
+  <path d="M26 36 L20 44 L26 42 Z" fill="#0288d1"/>
+  <path d="M38 36 L44 44 L38 42 Z" fill="#0288d1"/>
+  <!-- 火焰 -->
+  <path d="M28 42 Q30 50 32 54 Q34 50 36 42 Z" fill="url(#flameGrad)"/>
+</svg>
