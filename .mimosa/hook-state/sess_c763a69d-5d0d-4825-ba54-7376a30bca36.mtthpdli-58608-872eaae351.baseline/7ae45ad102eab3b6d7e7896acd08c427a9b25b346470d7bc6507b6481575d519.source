@@ -7,7 +7,7 @@
     "dev": "vitepress dev docs-site",
     "build": "vitepress build docs-site",
     "preview": "vitepress preview docs-site",
-    "gen-lessons": "python generate_lessons.py"
+    "gen-lessons": "python gen_lessons.py"
   },
   "dependencies": {
     "@mdit/plugin-katex": "^1.0.1",

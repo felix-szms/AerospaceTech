@@ -9,6 +9,7 @@ title: 第 6 课 · 无人机系统与模拟飞行
 
 <div class="lesson-nav">
   <a href="#讲义">📖 讲义</a>
+  <a href="#在线体验工具">💻 在线体验</a>
   <a href="#实践活动">🔬 实践活动</a>
   <a href="#学生任务单">✏️ 学生任务单</a>
   <a href="#教师参考">👨‍🏫 教师参考</a>
@@ -184,6 +185,8 @@ title: 第 6 课 · 无人机系统与模拟飞行
 5. 🌐 中国知网：https://www.cnki.net/（校内通常可访问）
 6. 🌐 国家知识产权局专利检索：https://pss-system.cponline.cnipa.gov.cn/
 
+
+<LessonTools :lesson="6" />
 
 ## 🔬 实践活动
 

@@ -105,6 +105,51 @@
       <canvas ref="canvasRef" width="760" height="380"></canvas>
     </div>
 
+    <!-- 数据记录表（探究实验用） -->
+    <div class="data-recorder">
+      <div class="recorder-header">
+        <h3>📋 升力探究数据记录表</h3>
+        <div class="recorder-btns">
+          <button class="btn" @click="recordDataPoint">➕ 记录当前数据</button>
+          <button class="btn btn-secondary" @click="clearRecords" v-if="records.length">🗑️ 清空</button>
+        </div>
+      </div>
+      <p class="recorder-tip" v-if="!records.length">
+        💡 用法：调整上方滑块 → 点击"记录当前数据"。改变<strong>一个变量</strong>（如只改迎角）记录 5-8 组，
+        观察规律——这就是工程师做"风洞实验"的方法（控制变量法）。
+      </p>
+      <table v-if="records.length" class="records-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>速度 v (m/s)</th>
+            <th>迎角 α (°)</th>
+            <th>翼面积 S (m²)</th>
+            <th>升力系数 CL</th>
+            <th>升力 L (N)</th>
+            <th>状态</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(r, i) in records" :key="i" :class="{ 'stall-row': r.stalled }">
+            <td>{{ i + 1 }}</td>
+            <td>{{ r.v }}</td>
+            <td>{{ r.alpha }}</td>
+            <td>{{ r.S }}</td>
+            <td>{{ r.CL }}</td>
+            <td><strong>{{ r.L }}</strong></td>
+            <td>{{ r.stalled ? '⚠️失速' : '层流' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="recorder-insight" v-if="records.length >= 3">
+        🔍 <strong>看看你发现了什么？</strong>
+        ① 只改速度时：v 翻倍 → L 变几倍？（平方关系）
+        ② 只改迎角时：每增 1° → CL 增 0.1（线性），直到 15° 后？
+        ③ 想让升力翻倍：把速度提高到 √2 倍，或把翼面积翻倍，哪个更容易？
+      </div>
+    </div>
+
     <!-- 公式说明 -->
     <div class="formula-section">
       <h3>📐 升力公式</h3>
@@ -323,6 +368,25 @@ const applyPreset = (preset) => {
   params.area = preset.area
   params.alpha = preset.alpha
   params.density = preset.density
+}
+
+/* ============== 数据记录（探究实验） ============== */
+const records = ref([])
+
+const recordDataPoint = () => {
+  records.value.push({
+    v: params.velocity.toFixed(0),
+    alpha: params.alpha.toFixed(0),
+    S: params.area.toFixed(1),
+    CL: results.CL.toFixed(2),
+    L: results.lift.toFixed(0),
+    stalled: isStalled.value
+  })
+  if (records.value.length > 20) records.value.shift()
+}
+
+const clearRecords = () => {
+  records.value = []
 }
 
 /* ============== 数字格式化 ============== */
@@ -895,5 +959,89 @@ onUnmounted(() => {
   .perspective-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ============== 数据记录表 ============== */
+.data-recorder {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+}
+
+.recorder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.recorder-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--vp-c-text-1);
+}
+
+.recorder-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.recorder-tip {
+  font-size: 0.88rem;
+  color: var(--vp-c-text-2);
+  background: var(--vp-c-bg-soft);
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  border-left: 3px solid #4fc3f7;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 0.75rem 0;
+}
+
+.records-table th,
+.records-table td {
+  padding: 0.45rem 0.7rem;
+  text-align: center;
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.records-table th {
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+  font-weight: 600;
+}
+
+.records-table td {
+  color: var(--vp-c-text-1);
+  font-family: 'JetBrains Mono', Consolas, monospace;
+}
+
+.records-table td strong {
+  color: #4fc3f7;
+}
+
+.stall-row {
+  background: rgba(255, 107, 53, 0.08);
+}
+
+.recorder-insight {
+  font-size: 0.88rem;
+  color: var(--vp-c-text-2);
+  background: rgba(255, 213, 79, 0.08);
+  border-left: 3px solid #ffd54f;
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  line-height: 1.7;
+  margin: 0.5rem 0 0;
 }
 </style>

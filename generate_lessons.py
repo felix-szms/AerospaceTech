@@ -1,7 +1,58 @@
 """
 重新生成 18 个课时页面（内联 5 个内容文件，确保 KaTeX 公式渲染）
+
+用法：python generate_lessons.py
+输出：docs-site/lessons/lesson-XX.md（仅允许白名单内的字面量文件名）
 """
 import os
+from pathlib import Path
+
+# ============ 路径白名单（全部为字面量，禁止动态拼接进入文件操作）============
+PROJECT_ROOT = Path(__file__).resolve().parent
+OUTPUT_DIR = PROJECT_ROOT / "docs-site" / "lessons"
+SOURCE_BASE = PROJECT_ROOT / "lessons"
+
+# 课次号 → 课次子目录名（字面量白名单）
+LESSON_DIRS = {
+    1: "01", 2: "02", 3: "03", 4: "04", 5: "05", 6: "06", 7: "07", 8: "08", 9: "09",
+    10: "10", 11: "11", 12: "12", 13: "13", 14: "14", 15: "15", 16: "16", 17: "17", 18: "18",
+}
+
+# 课次号 → 输出文件名（字面量白名单）
+OUTPUT_FILES = {
+    1: "lesson-01.md", 2: "lesson-02.md", 3: "lesson-03.md", 4: "lesson-04.md",
+    5: "lesson-05.md", 6: "lesson-06.md", 7: "lesson-07.md", 8: "lesson-08.md",
+    9: "lesson-09.md", 10: "lesson-10.md", 11: "lesson-11.md", 12: "lesson-12.md",
+    13: "lesson-13.md", 14: "lesson-14.md", 15: "lesson-15.md", 16: "lesson-16.md",
+    17: "lesson-17.md", 18: "lesson-18.md",
+}
+
+# 课次子目录 → 内容文件名（字面量白名单）
+CONTENT_FILES = ("讲义.md", "实践活动.md", "学生任务单.md", "教师参考.md", "素材清单.md")
+
+
+def resolve_in(base: Path, *literal_parts: str) -> Path:
+    """将字面量路径片段限定在 base 目录内解析。
+
+    - 片段必须是白名单字面量：非空、无路径分隔符、无 ..
+    - 解析（规范化）后必须仍位于 base 内，否则拒绝
+    """
+    for part in literal_parts:
+        if (
+            not isinstance(part, str)
+            or not part
+            or part in (".", "..")
+            or "/" in part
+            or "\\" in part
+            or ".." in part
+        ):
+            raise ValueError(f"非法路径片段: {part!r}")
+    base_resolved = base.resolve()
+    target = base_resolved.joinpath(*literal_parts).resolve()
+    if target.parent != base_resolved.joinpath(*literal_parts[:-1]).resolve():
+        raise ValueError(f"路径越界: {target} 不在 {base_resolved} 内")
+    return target
+
 
 LESSONS = {
     1:  ("飞天梦启航：空天科技与赛事导论", "导论", "理论+项目启动"),
@@ -42,12 +93,18 @@ TOOL_LINKS = {
     15: ("🛰️ 轨道计算器", "/tools/orbit-calculator"),
 }
 
-OUTPUT_DIR = r"C:\zprojects\spacecourse\docs-site\lessons"
-SOURCE_BASE = r"C:\zprojects\spacecourse\lessons"
+# 配有"在线体验工具"区块的课次（与 toolResources.ts 的 lessonTools 键保持一致）
+LESSON_TOOLS_SET = {1, 2, 3, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15}
 
-def read_and_strip(path):
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
+
+def read_and_strip(lesson_num: int, filename: str):
+    """按白名单读取课时内容文件，去掉首行 H1 标题。"""
+    if lesson_num not in LESSON_DIRS:
+        raise ValueError(f"非法课次号: {lesson_num!r}")
+    if filename not in CONTENT_FILES:
+        raise ValueError(f"非法内容文件名: {filename!r}")
+    path = resolve_in(SOURCE_BASE, LESSON_DIRS[lesson_num], filename)
+    content = path.read_text(encoding="utf-8")
     lines = content.split("\n")
     if lines and lines[0].startswith("# "):
         lines = lines[1:]
@@ -57,7 +114,6 @@ def read_and_strip(path):
 
 
 # 每课在特定锚点后插入的科学示意图
-# 格式：(匹配的章节标题, 图示配置)
 LESSON_DIAGRAMS = {
     1: [
         ("### 一、航空与航天：一条看不见的线",
@@ -121,7 +177,7 @@ def insert_diagrams(content, lesson_num):
 
 
 def gen_lesson_page(num, title, module, lesson_type):
-    lesson_dir = f"{num:02d}"
+    lesson_dir = LESSON_DIRS[num]
     icon = MODULE_STYLE[module]
 
     pbl_mark = ""
@@ -141,14 +197,17 @@ def gen_lesson_page(num, title, module, lesson_type):
   <a href="{tool_link}">{tool_name} →</a>
 </div>"""
 
-    lecture = read_and_strip(os.path.join(SOURCE_BASE, lesson_dir, "讲义.md"))
-    practice = read_and_strip(os.path.join(SOURCE_BASE, lesson_dir, "实践活动.md"))
-    task = read_and_strip(os.path.join(SOURCE_BASE, lesson_dir, "学生任务单.md"))
-    teacher = read_and_strip(os.path.join(SOURCE_BASE, lesson_dir, "教师参考.md"))
-    material = read_and_strip(os.path.join(SOURCE_BASE, lesson_dir, "素材清单.md"))
+    lecture = read_and_strip(num, "讲义.md")
+    practice = read_and_strip(num, "实践活动.md")
+    task = read_and_strip(num, "学生任务单.md")
+    teacher = read_and_strip(num, "教师参考.md")
+    material = read_and_strip(num, "素材清单.md")
 
     # 为讲义插入科学示意图
     lecture = insert_diagrams(lecture, num)
+
+    # 有在线工具的课时，在实践活动前插入"在线体验"区块
+    tools_html = f"\n<LessonTools :lesson=\"{num}\" />\n" if num in LESSON_TOOLS_SET else ""
 
     content = f"""---
 title: 第 {num} 课 · {title}
@@ -161,6 +220,7 @@ title: 第 {num} 课 · {title}
 
 <div class="lesson-nav">
   <a href="#讲义">📖 讲义</a>
+  <a href="#在线体验工具">💻 在线体验</a>
   <a href="#实践活动">🔬 实践活动</a>
   <a href="#学生任务单">✏️ 学生任务单</a>
   <a href="#教师参考">👨‍🏫 教师参考</a>
@@ -170,7 +230,7 @@ title: 第 {num} 课 · {title}
 ## 📖 讲义
 
 {lecture}
-
+{tools_html}
 ## 🔬 实践活动
 
 {practice}
@@ -234,12 +294,14 @@ title: 第 {num} 课 · {title}
 
 
 def main():
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     for num, (title, module, lesson_type) in LESSONS.items():
         content = gen_lesson_page(num, title, module, lesson_type)
-        output_path = os.path.join(OUTPUT_DIR, f"lesson-{num:02d}.md")
-        with open(output_path, "w", encoding="utf-8") as f:
-            f.write(content)
+        # 输出文件名来自字面量白名单映射，并校验解析后仍在 OUTPUT_DIR 内
+        if num not in OUTPUT_FILES:
+            raise ValueError(f"课次 {num!r} 无对应输出文件白名单")
+        out_path = resolve_in(OUTPUT_DIR, OUTPUT_FILES[num])
+        out_path.write_text(content, encoding="utf-8")
         print(f"✅ lesson-{num:02d}.md")
     print(f"\n🎉 {len(LESSONS)} 个课时页面生成完成！")
 

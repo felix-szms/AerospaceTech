@@ -13,6 +13,7 @@ title: 第 11 课 · 水火箭设计与发射
 
 <div class="lesson-nav">
   <a href="#讲义">📖 讲义</a>
+  <a href="#在线体验工具">💻 在线体验</a>
   <a href="#实践活动">🔬 实践活动</a>
   <a href="#学生任务单">✏️ 学生任务单</a>
   <a href="#教师参考">👨‍🏫 教师参考</a>
@@ -145,6 +146,8 @@ $$E_{air} \rightarrow E_{water} + E_{rocket} + Q_{loss}$$
 4. 🌐 OpenRocket 官网：http://openrocket.info/ （固体火箭仿真，思路可迁移到水火箭）
 5. 💡 进阶挑战：尝试推导水火箭的"理想速度"公式（基于能量守恒），对比实测值，分析能量损耗来源。
 
+
+<LessonTools :lesson="11" />
 
 ## 🔬 实践活动
 

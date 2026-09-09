@@ -9,6 +9,7 @@ title: 第 1 课 · 飞天梦启航：空天科技与赛事导论
 
 <div class="lesson-nav">
   <a href="#讲义">📖 讲义</a>
+  <a href="#在线体验工具">💻 在线体验</a>
   <a href="#实践活动">🔬 实践活动</a>
   <a href="#学生任务单">✏️ 学生任务单</a>
   <a href="#教师参考">👨‍🏫 教师参考</a>
@@ -131,6 +132,8 @@ title: 第 1 课 · 飞天梦启航：空天科技与赛事导论
 4. 🌐 国家航天局：https://www.cnsa.gov.cn/
 5. 🌐 中国宇航学会"全国航天特色学校"：http://www.csaspace.org.cn/
 
+
+<LessonTools :lesson="1" />
 
 ## 🔬 实践活动
 

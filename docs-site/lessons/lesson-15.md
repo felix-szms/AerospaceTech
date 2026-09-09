@@ -13,6 +13,7 @@ title: 第 15 课 · 卫星应用：北斗导航与遥感
 
 <div class="lesson-nav">
   <a href="#讲义">📖 讲义</a>
+  <a href="#在线体验工具">💻 在线体验</a>
   <a href="#实践活动">🔬 实践活动</a>
   <a href="#学生任务单">✏️ 学生任务单</a>
   <a href="#教师参考">👨‍🏫 教师参考</a>
@@ -135,6 +136,8 @@ GPS 能定位，北斗也能定位，那北斗凭什么与众不同？答案在�
 5. 🌐 Google Earth Engine（云端遥感）：https://earthengine.google.com/
 6. 🎬 纪录片《北斗》：央视出品，讲述北斗三步走背后的故事
 
+
+<LessonTools :lesson="15" />
 
 ## 🔬 实践活动
 

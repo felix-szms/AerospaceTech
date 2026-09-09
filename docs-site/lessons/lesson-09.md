@@ -13,6 +13,7 @@ title: 第 9 课 · 航天动力学：轨道、速度与引力
 
 <div class="lesson-nav">
   <a href="#讲义">📖 讲义</a>
+  <a href="#在线体验工具">💻 在线体验</a>
   <a href="#实践活动">🔬 实践活动</a>
   <a href="#学生任务单">✏️ 学生任务单</a>
   <a href="#教师参考">👨‍🏫 教师参考</a>
@@ -186,6 +187,8 @@ $$r = \sqrt[3]{\frac{GMT^2}{4\pi^2}} \approx 42164\,\text{km}$$
 4. 🎬 B 站搜"开普勒三定律 动画"——直观理解周期与半长轴
 5. 🌐 北斗卫星导航系统官网（查在轨卫星）：http://www.beidou.gov.cn/
 
+
+<LessonTools :lesson="9" />
 
 ## 🔬 实践活动
 

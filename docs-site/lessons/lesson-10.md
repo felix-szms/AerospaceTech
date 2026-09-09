@@ -13,6 +13,7 @@ title: 第 10 课 · 火箭推进原理
 
 <div class="lesson-nav">
   <a href="#讲义">📖 讲义</a>
+  <a href="#在线体验工具">💻 在线体验</a>
   <a href="#实践活动">🔬 实践活动</a>
   <a href="#学生任务单">✏️ 学生任务单</a>
   <a href="#教师参考">👨‍🏫 教师参考</a>
@@ -197,6 +198,8 @@ $$I_{sp} = \frac{v_e}{g_0}\quad(g_0 = 9.8\,\text{m/s}^2)$$
 5. 🌐 SpaceX 猎鹰 9 号 / 星舰回收演示（了解可重复使用火箭）：https://www.spacex.com/
 6. 🎬 央视《我们的征程》—— 长征五号研制故事（"胖五"的曲折）
 
+
+<LessonTools :lesson="10" />
 
 ## 🔬 实践活动
 

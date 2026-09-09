@@ -13,6 +13,7 @@ title: 第 12 课 · 模型火箭仿真与制作
 
 <div class="lesson-nav">
   <a href="#讲义">📖 讲义</a>
+  <a href="#在线体验工具">💻 在线体验</a>
   <a href="#实践活动">🔬 实践活动</a>
   <a href="#学生任务单">✏️ 学生任务单</a>
   <a href="#教师参考">👨‍🏫 教师参考</a>
@@ -166,6 +167,8 @@ OpenRocket 会自动算出 CG、CP 和稳定性裕度，你在设计时要让它
 4. 📖 《Model Rocket Design and Construction》（Tim Van Milligan）——模型火箭设计进阶
 5. 🌐 全国青少年航天创新大赛官网：http://nysic.declare.htgjjl.com
 
+
+<LessonTools :lesson="12" />
 
 ## 🔬 实践活动
 
