@@ -38,3 +38,6 @@ __pycache__/
 # VitePress 临时
 .vitepress/cache/
 .temp/
+
+# Mimosa 安全工具缓存
+.mimosa/
