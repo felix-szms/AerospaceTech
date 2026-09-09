@@ -1,7 +1,7 @@
 <template>
   <div class="lesson-tools" v-if="tools.length">
     <div class="tools-header">
-      <h3>💻 在线体验工具</h3>
+      <h3 id="在线体验工具">💻 在线体验工具</h3>
       <p class="tools-tip">先学原理（📖 讲义）→ 上手工具（本区）→ 动手实践（🔧 实践活动）</p>
     </div>
     <div class="tools-grid">

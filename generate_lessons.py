@@ -113,6 +113,54 @@ def read_and_strip(lesson_num: int, filename: str):
     return "\n".join(lines)
 
 
+# 网站页面需要隐藏的板块关键词（命中二级标题即整节删除；
+# lessons/ 源文件保持完整，仅供页面展示层过滤）
+# 注意：素材清单用窄集——其"课前准备"节下嵌有视频/文档/软件资源（### 子节），需保留
+STRIP_KEYWORDS_TASK = (
+    "课后任务",
+    "自评",
+    "器材",
+    "注意事项",
+    "注意",
+)
+STRIP_KEYWORDS_GENERIC = (
+    "器材",
+    "注意事项",
+    "注意",
+    "赛事对接",
+)
+
+
+def strip_sections(text: str, keywords=STRIP_KEYWORDS_GENERIC) -> str:
+    """删除命中关键词的二级标题（## ）整节内容，到下一个二级标题为止。"""
+    lines = text.split("\n")
+    kept: list = []
+    skipping = False
+    for line in lines:
+        if line.startswith("## "):
+            title = line[3:]
+            skipping = any(kw in title for kw in keywords)
+            if not skipping:
+                kept.append(line)
+            continue
+        if not skipping:
+            kept.append(line)
+    # 压缩因删节产生的连续空行
+    cleaned: list = []
+    blank = 0
+    for line in kept:
+        if line.strip() == "":
+            blank += 1
+            if blank <= 2:
+                cleaned.append(line)
+        else:
+            blank = 0
+            cleaned.append(line)
+    while cleaned and cleaned[-1].strip() == "":
+        cleaned.pop()
+    return "\n".join(cleaned)
+
+
 # 每课在特定锚点后插入的科学示意图
 LESSON_DIAGRAMS = {
     1: [
@@ -198,16 +246,28 @@ def gen_lesson_page(num, title, module, lesson_type):
 </div>"""
 
     lecture = read_and_strip(num, "讲义.md")
-    practice = read_and_strip(num, "实践活动.md")
-    task = read_and_strip(num, "学生任务单.md")
-    teacher = read_and_strip(num, "教师参考.md")
-    material = read_and_strip(num, "素材清单.md")
+    practice = strip_sections(read_and_strip(num, "实践活动.md"))
+    task = strip_sections(read_and_strip(num, "学生任务单.md"), STRIP_KEYWORDS_TASK)
+    material = strip_sections(read_and_strip(num, "素材清单.md"))
+    # 素材清单的"课前准备（教师）"节内是视频/文档/软件资源表（学生同样需要），
+    # 保留内容但把标题改为面向全体的"教学资源"
+    material = material.replace("## 课前准备（教师）", "## 🎬 教学资源")
+    # 清理指向"教师参考"的正文引用（该板块已不展示在页面上）
+    for ref in ("（见教师参考）", "(见教师参考)", "（详见教师参考）", "(详见教师参考)"):
+        practice = practice.replace(ref, "")
+        task = task.replace(ref, "")
+        material = material.replace(ref, "")
+        lecture = lecture.replace(ref, "")
+    # 教师参考（含教学设计/差异化/赛事对接/课前清单等）不进入网站页面；
+    # 完整内容保留在 lessons/NN/教师参考.md 源文件中供教师使用
 
     # 为讲义插入科学示意图
     lecture = insert_diagrams(lecture, num)
 
     # 有在线工具的课时，在实践活动前插入"在线体验"区块
     tools_html = f"\n<LessonTools :lesson=\"{num}\" />\n" if num in LESSON_TOOLS_SET else ""
+    # 导航条上的"在线体验"锚点仅在该课有工具区块时输出（锚点目标由组件渲染）
+    tools_nav = '\n  <a href="#在线体验工具">💻 在线体验</a>' if num in LESSON_TOOLS_SET else ""
 
     content = f"""---
 title: 第 {num} 课 · {title}
@@ -219,12 +279,10 @@ title: 第 {num} 课 · {title}
 {tool_html}
 
 <div class="lesson-nav">
-  <a href="#讲义">📖 讲义</a>
-  <a href="#在线体验工具">💻 在线体验</a>
-  <a href="#实践活动">🔬 实践活动</a>
-  <a href="#学生任务单">✏️ 学生任务单</a>
-  <a href="#教师参考">👨‍🏫 教师参考</a>
-  <a href="#素材清单">📋 素材清单</a>
+  <a href="#📖-讲义">📖 讲义</a>{tools_nav}
+  <a href="#🔬-实践活动">🔬 实践活动</a>
+  <a href="#✏️-学生任务单">✏️ 学生任务单</a>
+  <a href="#📋-素材清单">📋 素材清单</a>
 </div>
 
 ## 📖 讲义
@@ -238,10 +296,6 @@ title: 第 {num} 课 · {title}
 ## ✏️ 学生任务单
 
 {task}
-
-## 👨‍🏫 教师参考
-
-{teacher}
 
 ## 📋 素材清单
 
