@@ -118,12 +118,8 @@
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, watch, nextTick } from 'vue'
-
-// 物理常数
-const G = 6.674e-11 // 万有引力常数 N·m²/kg²
-const M = 5.972e24 // 地球质量 kg
-const R_EARTH = 6371 // 地球半径 km
-const GM = G * M // m³/s²
+import { circularOrbit } from '../utils/physics'
+import { useResponsiveCanvas, useVisibility } from '../composables/useCanvas'
 
 // 响应式数据
 const altitude = ref(420) // 默认 ISS 高度
@@ -131,6 +127,9 @@ const orbitType = ref('circular')
 const canvasRef = ref(null)
 let animationId = null
 let angle = 0
+
+// 视口可见性：滚出视口暂停动画，回到视口恢复
+const visible = useVisibility(canvasRef)
 
 const results = reactive({
   radius: 0,
@@ -149,20 +148,10 @@ const presets = [
 
 // 计算函数
 const calculate = () => {
-  const h = altitude.value || 0
-  const r_km = R_EARTH + h
-  const r_m = r_km * 1000
-
-  // 轨道速度 v = sqrt(GM/r)
-  const v = Math.sqrt(GM / r_m) // m/s
-  const v_kms = v / 1000
-
-  // 轨道周期 T = 2π·sqrt(r³/GM)
-  const T = 2 * Math.PI * Math.sqrt(Math.pow(r_m, 3) / GM)
-
-  results.radius = r_km
-  results.velocity = v_kms
-  results.period = T
+  const o = circularOrbit(altitude.value || 0)
+  results.radius = o.rKm
+  results.velocity = o.vKmS
+  results.period = o.periodS
 }
 
 // 应用预设
@@ -194,13 +183,21 @@ const formatPeriod = (seconds) => {
   return `${s}s`
 }
 
-// Canvas 绘制轨道
+// Canvas 绘制轨道：按 500×500 设计坐标绘制，每帧用当前 CSS 尺寸算出等比缩放
+// （dpr × 当前宽高/设计宽高），画布任意大小下都与原设计等比、不模糊
+const DESIGN = { w: 500, h: 500 }
+
 const drawOrbit = () => {
   const canvas = canvasRef.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
-  const W = canvas.width
-  const H = canvas.height
+  const cw = canvas.clientWidth
+  const ch = canvas.clientHeight
+  if (!cw || !ch) return
+  const dpr = window.devicePixelRatio || 1
+  ctx.setTransform((dpr * cw) / DESIGN.w, 0, 0, (dpr * ch) / DESIGN.h, 0, 0)
+  const W = DESIGN.w
+  const H = DESIGN.h
   const cx = W / 2
   const cy = H / 2
 
@@ -296,11 +293,25 @@ const drawOrbit = () => {
   angle += visualSpeed
 }
 
-// 动画循环
+// 动画循环（不可见时自动暂停）
 const animate = () => {
+  if (!visible.value) {
+    animationId = null
+    return
+  }
   drawOrbit()
   animationId = requestAnimationFrame(animate)
 }
+
+// 响应式画布：保持 1:1 正方形，宽度自适应容器（最大 500px）
+useResponsiveCanvas(canvasRef, 1, () => {
+  drawOrbit() // 尺寸变化后立即重绘一帧（含不可见时的 resize）
+}, 500)
+
+// 回到视口恢复动画
+watch(visible, (v) => {
+  if (v && animationId === null) animate()
+})
 
 // 监听变化重绘
 watch([altitude, orbitType], () => {

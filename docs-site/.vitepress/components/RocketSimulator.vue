@@ -121,8 +121,8 @@
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, watch, nextTick } from 'vue'
-
-const g = 9.8 // 重力加速度
+import { rocketPerformance, G0 } from '../utils/physics'
+import { useResponsiveCanvas, useVisibility } from '../composables/useCanvas'
 
 const params = reactive({
   totalMass: 0.053,         // 总质量 kg（A8-3模型火箭发动机典型）
@@ -140,8 +140,9 @@ const results = reactive({
 })
 
 const presets = [
-  { name: '🚀 A8-3 模型火箭', totalMass: 0.053, propellantMass: 0.0167, exhaustVelocity: 2500, thrust: 8 },
-  { name: '🚀 B6-4 模型火箭', totalMass: 0.062, propellantMass: 0.021, exhaustVelocity: 2500, thrust: 6 },
+  // 推进剂质量按发动机总冲/有效排气速度换算（A 级总冲 2.5 N·s → ≈1g）
+  { name: '🚀 A8-3 模型火箭', totalMass: 0.053, propellantMass: 0.001, exhaustVelocity: 2500, thrust: 8 },
+  { name: '🚀 B6-4 模型火箭', totalMass: 0.062, propellantMass: 0.002, exhaustVelocity: 2500, thrust: 6 },
   { name: '🚀 水火箭(1L水)', totalMass: 1.5, propellantMass: 0.5, exhaustVelocity: 80, thrust: 30 },
   { name: '🚀 探空火箭(小型)', totalMass: 20, propellantMass: 8, exhaustVelocity: 2200, thrust: 5000 }
 ]
@@ -155,35 +156,23 @@ let simAltitude = 0
 let simVelocity = 0
 let altitudeHistory = []
 
-// 仿真主函数
+// 视口可见性：仿真运行中滚出视口自动暂停 step()，回到视口继续
+const visible = useVisibility(canvasRef)
+
+const stopAnimation = () => {
+  if (animationId) cancelAnimationFrame(animationId)
+  animationId = null
+}
+
+// 仿真主函数（静态性能估算，公式统一在 utils/physics）
 const simulate = () => {
-  const { totalMass, propellantMass, exhaustVelocity, thrust } = params
-
-  if (totalMass <= propellantMass || totalMass <= 0 || propellantMass < 0 || exhaustVelocity <= 0 || thrust <= 0) {
-    Object.keys(results).forEach(k => results[k] = 0)
-    return
-  }
-
-  // 质量比
-  const massRatio = totalMass / (totalMass - propellantMass)
-  // Δv
-  const deltaV = exhaustVelocity * Math.log(massRatio)
-  // 燃烧时间
-  const burnTime = (propellantMass * exhaustVelocity) / thrust
-  // 主动段末速度（考虑重力损失）
-  const burnoutVelocity = Math.max(0, deltaV - g * burnTime)
-  // 主动段高度（近似为平均速度乘时间）
-  const burnoutAltitude = (burnoutVelocity / 2) * burnTime
-  // 惯性上升高度
-  const coastAltitude = (burnoutVelocity * burnoutVelocity) / (2 * g)
-  // 最大高度
-  const maxAltitude = burnoutAltitude + coastAltitude
-
-  results.deltaV = deltaV
-  results.burnTime = burnTime
-  results.burnoutVelocity = burnoutVelocity
-  results.burnoutAltitude = burnoutAltitude
-  results.maxAltitude = maxAltitude
+  const r = rocketPerformance({
+    totalMass: params.totalMass,
+    propellantMass: params.propellantMass,
+    exhaustVelocity: params.exhaustVelocity,
+    thrust: params.thrust
+  })
+  Object.assign(results, r)
 }
 
 const applyPreset = (preset) => {
@@ -202,7 +191,7 @@ const formatNum = (num, digits = 2) => {
 const runSimulation = () => {
   if (isRunning.value) {
     isRunning.value = false
-    if (animationId) cancelAnimationFrame(animationId)
+    stopAnimation()
     return
   }
   // 重置
@@ -211,12 +200,16 @@ const runSimulation = () => {
   simVelocity = 0
   altitudeHistory = []
   isRunning.value = true
-  step()
+  // 若当前不可见（理论上点按钮时必然可见），由 watch(visible) 在回到视口时启动
+  if (visible.value) {
+    stopAnimation()
+    animationId = requestAnimationFrame(step)
+  }
 }
 
 const resetSimulation = () => {
   isRunning.value = false
-  if (animationId) cancelAnimationFrame(animationId)
+  stopAnimation()
   simTime = 0
   simAltitude = 0
   simVelocity = 0
@@ -227,6 +220,11 @@ const resetSimulation = () => {
 
 const step = () => {
   if (!isRunning.value) return
+  // 滚出视口：暂停仿真（状态保留），回到视口由 watch 恢复
+  if (!visible.value) {
+    animationId = null
+    return
+  }
   const dt = 0.05 // 仿真步长
   simTime += dt
 
@@ -236,12 +234,12 @@ const step = () => {
   // 主动段
   if (simTime <= burnTime) {
     const currentMass = totalMass - (propellantMass * simTime / burnTime)
-    const accel = thrust / currentMass - g
+    const accel = thrust / currentMass - G0
     simVelocity += accel * dt
     simAltitude += simVelocity * dt
   } else {
     // 惯性段
-    simVelocity -= g * dt
+    simVelocity -= G0 * dt
     simAltitude += simVelocity * dt
     if (simAltitude <= 0) {
       simAltitude = 0
@@ -258,16 +256,24 @@ const step = () => {
 
   if (isRunning.value) {
     animationId = requestAnimationFrame(step)
+  } else {
+    animationId = null
   }
 }
 
-// 绘制火箭
+// 绘制火箭：按 200×500 设计坐标绘制，每帧按当前 CSS 尺寸等比缩放（dpr 保清晰）
+const ROCKET_DESIGN = { w: 200, h: 500 }
 const drawRocket = () => {
   const canvas = canvasRef.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
-  const W = canvas.width
-  const H = canvas.height
+  const cw = canvas.clientWidth
+  const ch = canvas.clientHeight
+  if (!cw || !ch) return
+  const dpr = window.devicePixelRatio || 1
+  ctx.setTransform((dpr * cw) / ROCKET_DESIGN.w, 0, 0, (dpr * ch) / ROCKET_DESIGN.h, 0, 0)
+  const W = ROCKET_DESIGN.w
+  const H = ROCKET_DESIGN.h
 
   // 背景渐变（天空到太空）
   const grad = ctx.createLinearGradient(0, 0, 0, H)
@@ -374,13 +380,19 @@ const drawRocket = () => {
   ctx.fillText(`v=${simVelocity.toFixed(0)}m/s`, W / 2, 45)
 }
 
-// 绘制高度-时间曲线
+// 绘制高度-时间曲线：按 600×300 设计坐标绘制，每帧按当前 CSS 尺寸等比缩放
+const CHART_DESIGN = { w: 600, h: 300 }
 const drawChart = () => {
   const canvas = chartRef.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
-  const W = canvas.width
-  const H = canvas.height
+  const cw = canvas.clientWidth
+  const ch = canvas.clientHeight
+  if (!cw || !ch) return
+  const dpr = window.devicePixelRatio || 1
+  ctx.setTransform((dpr * cw) / CHART_DESIGN.w, 0, 0, (dpr * ch) / CHART_DESIGN.h, 0, 0)
+  const W = CHART_DESIGN.w
+  const H = CHART_DESIGN.h
 
   // 背景
   ctx.fillStyle = '#0a1929'
@@ -418,7 +430,7 @@ const drawChart = () => {
   ctx.fillText('时间 (s)', W / 2, H - 8)
 
   // 理论最大值
-  const maxT = Math.max(results.burnTime * 2 + results.burnoutVelocity / g, 10) * 1.2
+  const maxT = Math.max(results.burnTime * 2 + results.burnoutVelocity / G0, 10) * 1.2
   const maxH = Math.max(results.maxAltitude, 10) * 1.2
 
   // 刻度
@@ -469,6 +481,21 @@ const drawChart = () => {
 
 watch(params, () => simulate(), { deep: true })
 
+// 响应式画布：火箭 2:5（窄条），高度曲线 2:1；宽度自适应容器（不超过设计宽度）
+useResponsiveCanvas(canvasRef, 200 / 500, () => {
+  drawRocket()
+}, 200)
+useResponsiveCanvas(chartRef, 600 / 300, () => {
+  drawChart()
+}, 600)
+
+// 回到视口时恢复被暂停的仿真
+watch(visible, (v) => {
+  if (v && isRunning.value && animationId === null) {
+    animationId = requestAnimationFrame(step)
+  }
+})
+
 onMounted(() => {
   simulate()
   nextTick(() => {
@@ -478,7 +505,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (animationId) cancelAnimationFrame(animationId)
+  stopAnimation()
 })
 </script>
 

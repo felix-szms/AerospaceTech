@@ -94,7 +94,7 @@ TOOL_LINKS = {
 }
 
 # 配有"在线体验工具"区块的课次（与 toolResources.ts 的 lessonTools 键保持一致）
-LESSON_TOOLS_SET = {1, 2, 3, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15}
+LESSON_TOOLS_SET = {1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15}
 
 
 def read_and_strip(lesson_num: int, filename: str):
@@ -174,7 +174,7 @@ LESSON_DIAGRAMS = {
     3: [
         ("### 一、伯努利原理",
          '<ScienceDiagram type="bernoulliAirfoil" title="✈️ 翼型气流与伯努利原理" caption="上表面流速快→压强低；下表面流速慢→压强高，压强差产生升力" />'),
-        ("### 五、四力平衡",
+        ("### 五、四力平衡：飞机怎么\"稳稳地飞\"",
          '<ScienceDiagram type="fourForces" title="⚖️ 匀速平飞时的四力平衡" caption="升力=重力，推力=阻力" />'),
     ],
     4: [

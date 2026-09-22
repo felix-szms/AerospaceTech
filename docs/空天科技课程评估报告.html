@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AeroSpaceTech 课程网站 · 全面质量评估报告</title>
+<style>
+:root {
+  --c-bg: #0b0f1a;
+  --c-surface: #111827;
+  --c-surface-2: #1a2236;
+  --c-border: #1e293b;
+  --c-text: #e2e8f0;
+  --c-text-2: #94a3b8;
+  --c-text-3: #64748b;
+  --c-accent: #38bdf8;
+  --c-accent-dim: rgba(56, 189, 248, 0.12);
+  --c-critical: #f87171;
+  --c-critical-bg: rgba(248, 113, 113, 0.08);
+  --c-high: #fb923c;
+  --c-high-bg: rgba(251, 146, 60, 0.08);
+  --c-medium: #fbbf24;
+  --c-medium-bg: rgba(251, 191, 36, 0.08);
+  --c-low: #a78bfa;
+  --c-low-bg: rgba(167, 139, 250, 0.08);
+  --c-good: #34d399;
+  --c-good-bg: rgba(52, 211, 153, 0.08);
+  --font-body: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --gap: 1.5rem;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--c-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; border-radius: 2px; }
+
+.page-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 4vw, 3rem);
+}
+
+/* Header */
+.report-header {
+  padding: 2.5rem 0 2rem;
+  border-bottom: 1px solid var(--c-border);
+  margin-bottom: 2.5rem;
+}
+.report-header h1 {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+.report-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  color: var(--c-text-2);
+  font-size: 0.88rem;
+}
+.report-meta span::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Score section */
+.score-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.score-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  text-align: center;
+}
+.score-card .score-num {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  line-height: 1.2;
+}
+.score-card .score-label {
+  font-size: 0.82rem;
+  color: var(--c-text-2);
+  margin-top: 0.3rem;
+}
+.score-card .score-bar {
+  height: 4px;
+  background: var(--c-border);
+  border-radius: 2px;
+  margin-top: 0.8rem;
+  overflow: hidden;
+}
+.score-card .score-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+/* Section */
+.section { margin-bottom: 3rem; }
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.section-title .icon {
+  font-size: 1.1rem;
+}
+
+/* TOC */
+.toc {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.toc h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  color: var(--c-text-2);
+}
+.toc ol {
+  columns: 2;
+  column-gap: 2rem;
+  padding-left: 1.5rem;
+}
+.toc li {
+  margin-bottom: 0.4rem;
+  font-size: 0.92rem;
+}
+.toc a { color: var(--c-text); }
+.toc a:hover { color: var(--c-accent); }
+
+/* Issue cards */
+.issue-list { display: flex; flex-direction: column; gap: 1rem; }
+.issue {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 1.2rem 1.5rem;
+  border-left: 3px solid transparent;
+}
+.issue.critical { border-left-color: var(--c-critical); background: var(--c-critical-bg); }
+.issue.high { border-left-color: var(--c-high); background: var(--c-high-bg); }
+.issue.medium { border-left-color: var(--c-medium); background: var(--c-medium-bg); }
+.issue.low { border-left-color: var(--c-low); background: var(--c-low-bg); }
+.issue.good { border-left-color: var(--c-good); background: var(--c-good-bg); }
+.issue-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+.issue-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+.issue-tag.critical { background: var(--c-critical); color: #1a0000; }
+.issue-tag.high { background: var(--c-high); color: #1a0a00; }
+.issue-tag.medium { background: var(--c-medium); color: #1a1400; }
+.issue-tag.low { background: var(--c-low); color: #0a001a; }
+.issue-tag.good { background: var(--c-good); color: #001a0a; }
+.issue-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+.issue-body {
+  color: var(--c-text-2);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+.issue-body code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: rgba(255,255,255,0.06);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-sm);
+}
+.issue-body .file-ref {
+  color: var(--c-accent);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+
+/* Summary table */
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+.summary-table th {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  background: var(--c-surface-2);
+  color: var(--c-text-2);
+  font-weight: 500;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--c-border);
+}
+.summary-table td {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--c-border);
+  vertical-align: top;
+}
+.summary-table tr:last-child td { border-bottom: none; }
+.summary-table .num { font-family: var(--font-mono); font-weight: 600; text-align: center; }
+
+/* Verdict */
+.verdict-box {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  margin-top: 1.5rem;
+}
+.verdict-box h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+}
+.verdict-box p {
+  color: var(--c-text-2);
+  font-size: 0.92rem;
+  margin-bottom: 0.6rem;
+}
+.verdict-box ul {
+  padding-left: 1.2rem;
+  color: var(--c-text-2);
+  font-size: 0.9rem;
+}
+.verdict-box li { margin-bottom: 0.3rem; }
+
+/* Footer */
+.report-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--c-border);
+  color: var(--c-text-3);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+/* Print */
+@media print {
+  body { background: #fff; color: #111; font-size: 12pt; }
+  .page-wrap { max-width: 100%; padding: 0; }
+  .issue { break-inside: avoid; }
+  .score-card, .toc, .verdict-box { break-inside: avoid; }
+  a { color: #0066cc; }
+  .toc ol { columns: 1; }
+}
+
+@media (max-width: 640px) {
+  .toc ol { columns: 1; }
+  .score-panel { grid-template-columns: repeat(2, 1fr); }
+  .issue { padding: 1rem; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<header class="report-header">
+  <h1>🛰️ AeroSpaceTech 课程网站 · 质量评估报告</h1>
+  <div class="report-meta">
+    <span>仓库：<a href="https://gitee.com/felixeleven/aerospacetech" target="_blank" rel="noopener noreferrer">gitee.com/felixeleven/aerospacetech</a></span>
+    <span>技术栈：VitePress + Vue 3</span>
+    <span>评估日期：2026-09-21</span>
+    <span>代码量：~18,700 行 / 75 文件</span>
+  </div>
+</header>
+
+<!-- Overall Scores -->
+<section class="score-panel" aria-label="综合评分">
+  <div class="score-card">
+    <div class="score-num" style="color: var(--c-critical)">38</div>
+    <div class="score-label">可部署性</div>
+    <div class="score-bar"><div class="score-bar-fill" style="width:38%;background:var(--c-critical)"></div></div>
+  </div>
+  <div class="score-card">
+    <div class="score-num" style="color: var(--c-medium)">62</div>
+    <div class="score-label">代码质量</div>
+    <div class="score-bar"><div class="score-bar-fill" style="width:62%;background:var(--c-medium)"></div></div>
+  </div>
+  <div class="score-card">
+    <div class="score-num" style="color: var(--c-good)">88</div>
+    <div class="score-label">课程设计</div>
+    <div class="score-bar"><div class="score-bar-fill" style="width:88%;background:var(--c-good)"></div></div>
+  </div>
+  <div class="score-card">
+    <div class="score-num" style="color: var(--c-high)">50</div>
+    <div class="score-label">文档一致性</div>
+    <div class="score-bar"><div class="score-bar-fill" style="width:50%;background:var(--c-high)"></div></div>
+  </div>
+  <div class="score-card">
+    <div class="score-num" style="color: var(--c-medium)">55</div>
+    <div class="score-label">可访问性 / SEO</div>
+    <div class="score-bar"><div class="score-bar-fill" style="width:55%;background:var(--c-medium)"></div></div>
+  </div>
+  <div class="score-card">
+    <div class="score-num" style="color: var(--c-good)">82</div>
+    <div class="score-label">综合评分</div>
+    <div class="score-bar"><div class="score-bar-fill" style="width:82%;background:var(--c-good)"></div></div>
+  </div>
+</section>
+
+<!-- TOC -->
+<nav class="toc" aria-label="目录">
+  <h2>📑 评估目录</h2>
+  <ol>
+    <li><a href="#critical">P0 · 阻断性问题（必须立即修复）</a></li>
+    <li><a href="#high">P1 · 高优先级问题</a></li>
+    <li><a href="#medium">P2 · 中等优先级问题</a></li>
+    <li><a href="#low">P3 · 低优先级 / 优化建议</a></li>
+    <li><a href="#strengths">亮点与优势</a></li>
+    <li><a href="#roadmap">改进路线图</a></li>
+    <li><a href="#verdict">总体评价</a></li>
+  </ol>
+</nav>
+
+<!-- Summary -->
+<section class="section">
+  <h2 class="section-title"><span class="icon">📊</span> 问题汇总</h2>
+  <table class="summary-table">
+    <caption>按严重等级统计的问题数量</caption>
+    <thead>
+      <tr><th>等级</th><th>数量</th><th>说明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="issue-tag critical">P0</span></td><td class="num">5</td><td>阻断部署或功能严重缺失，必须立即修复</td></tr>
+      <tr><td><span class="issue-tag high">P1</span></td><td class="num">7</td><td>影响用户体验或代码可维护性，应尽快修复</td></tr>
+      <tr><td><span class="issue-tag medium">P2</span></td><td class="num">6</td><td>影响专业度和长期维护，建议下个迭代处理</td></tr>
+      <tr><td><span class="issue-tag low">P3</span></td><td class="num">5</td><td>优化建议，提升项目成熟度</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- P0 Critical -->
+<section class="section" id="critical">
+  <h2 class="section-title"><span class="icon">🚨</span> P0 · 阻断性问题</h2>
+  <div class="issue-list">
+
+    <article class="issue critical">
+      <div class="issue-head">
+        <span class="issue-tag critical">P0-1</span>
+        <span class="issue-title">工具页面全部缺失 — 导航配置指向 10 个不存在的页面</span>
+      </div>
+      <div class="issue-body">
+        <p><span class="file-ref">config.ts</span> 侧边栏和导航引用了以下路由，但仓库中 <code>docs-site/tools/</code> 目录完全不存在：</p>
+        <p><code>/tools/mission-simulator</code>、<code>/tools/timeline</code>、<code>/tools/orbit-calculator</code>、<code>/tools/rocket-simulator</code>、<code>/tools/atmosphere</code>、<code>/tools/aerodynamics-lab</code>、<code>/tools/guide-nasa-eyes</code>、<code>/tools/guide-openrocket</code>、<code>/tools/guide-openmodelica</code>、<code>/tools/link-check</code></p>
+        <p><strong>影响：</strong>用户点击导航栏任何"在线工具"链接都会 404。Vue 组件虽然写好了（<code>OrbitCalculator.vue</code>、<code>RocketSimulator.vue</code> 等），但没有对应的 Markdown 包装页面。</p>
+        <p><strong>修复：</strong>为每个工具创建 <code>docs-site/tools/xxx.md</code>，在 Markdown 中引用对应的 Vue 组件。例如 <code>&lt;OrbitCalculator /&gt;</code>。</p>
+      </div>
+    </article>
+
+    <article class="issue critical">
+      <div class="issue-head">
+        <span class="issue-tag critical">P0-2</span>
+        <span class="issue-title">仓库缺少 package.json 和构建入口 — 无法 build</span>
+      </div>
+      <div class="issue-body">
+        <p>仓库根目录和 <code>docs-site/</code> 目录都没有 <code>package.json</code>、<code>package-lock.json</code>、<code>node_modules</code>。CI/CD 配置 <code>deploy.yml</code> 中引用 <code>package.json</code> 和 <code>npm ci</code>，但文件不存在。</p>
+        <p><strong>影响：</strong>GitHub Actions 部署流程无法执行；其他开发者 clone 后无法 <code>npm install</code>。</p>
+        <p><strong>修复：</strong>提交 <code>package.json</code>（含 vitepress、vue、katex 依赖）和 lock 文件。建议同时提交 <code>.gitignore</code> 排除 <code>node_modules</code>。</p>
+      </div>
+    </article>
+
+    <article class="issue critical">
+      <div class="issue-head">
+        <span class="issue-tag critical">P0-3</span>
+        <span class="issue-title">资源文件大量缺失 — Logo、图片、资源页均不存在</span>
+      </div>
+      <div class="issue-body">
+        <p>以下文件在代码中被引用但仓库中不存在：</p>
+        <ul>
+          <li><code>docs-site/public/logo.svg</code> — 被 <code>config.ts</code> 和首页引用</li>
+          <li><code>docs-site/resources.md</code> — 被导航栏引用</li>
+          <li><code>docs-site/public/history/</code> 下应有 ~30 张历史图片，实际只有 7 张</li>
+          <li><code>docs-site/public/lesson-covers/</code> — 被 <code>index.md</code> 引用，完全不存在</li>
+          <li><code>docs-site/public/images/</code> — 被多个文件引用，不存在</li>
+          <li><code>docs-site/public/avatars/</code> — 被首页引用，不存在</li>
+          <li><code>docs-site/.vitepress/public/logo.svg</code> — 另一处 Logo 引用路径</li>
+        </ul>
+        <p><strong>影响：</strong>首页和导航栏大量占位图无法加载，资源页 404。</p>
+      </div>
+    </article>
+
+    <article class="issue critical">
+      <div class="issue-head">
+        <span class="issue-tag critical">P0-4</span>
+        <span class="issue-title">许可证声明矛盾 — README 说 MIT，LICENSE 文件是 GPL-2.0</span>
+      </div>
+      <div class="issue-body">
+        <p><code>README.md</code> 明确写着 <code>LICENSE: MIT</code>，但 <code>LICENSE</code> 文件内容是 GNU GPL v2.0 全文。这是法律层面的矛盾。</p>
+        <p><strong>修复：</strong>统一为一。如果是 GPL-2.0，修改 README；如果是 MIT，替换 LICENSE 文件。</p>
+      </div>
+    </article>
+
+    <article class="issue critical">
+      <div class="issue-head">
+        <span class="issue-tag critical">P0-5</span>
+        <span class="issue-title">KaTeX 版本冲突 — package.json 引用 0.18.1，CDN 加载 0.16.11</span>
+      </div>
+      <div class="issue-body">
+        <p><code>index.md</code> 通过 CDN 加载 KaTeX 0.16.11（CSS + JS），但 <code>package.json</code> 依赖 <code>katex: ^0.18.1</code>。如果 vitepress-plugin-katex 使用 npm 包渲染，而 head 中的 CSS 是旧版本，会出现公式渲染不一致或样式冲突。</p>
+        <p><strong>修复：</strong>统一版本号。如果依赖 npm 包，不需要在 head 中重复加载 CDN。删除 head 中的 CDN 引用，让插件自行处理。</p>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- P1 High -->
+<section class="section" id="high">
+  <h2 class="section-title"><span class="icon">⚠️</span> P1 · 高优先级问题</h2>
+  <div class="issue-list">
+
+    <article class="issue high">
+      <div class="issue-head">
+        <span class="issue-tag high">P1-1</span>
+        <span class="issue-title">Vue 组件 Canvas 尺寸硬编码，不支持响应式</span>
+      </div>
+      <div class="issue-body">
+        <p><code>OrbitCalculator.vue</code> 使用 <code>width="600" height="600"</code>，<code>RocketSimulator.vue</code> 使用 <code>200×500</code>（火箭）和 <code>600×300</code>（图表），<code>AerodynamicsLab.vue</code> 使用 <code>300×500</code>。在移动设备上这些固定尺寸会溢出或过小。</p>
+        <p><strong>修复：</strong>使用 <code>ref</code> 获取容器 DOM，通过 <code>ResizeObserver</code> 或 <code>clientWidth</code> 动态设置 canvas 尺寸，保持宽高比。</p>
+      </div>
+    </article>
+
+    <article class="issue high">
+      <div class="issue-head">
+        <span class="issue-tag high">P1-2</span>
+        <span class="issue-title">Canvas 动画持续运行，无可见性检测</span>
+      </div>
+      <div class="issue-body">
+        <p>多个组件（<code>OrbitCalculator</code>、<code>RocketSimulator</code>、<code>AerodynamicsLab</code>）使用 <code>setInterval</code> / <code>requestAnimationFrame</code> 持续渲染，即使用户已滚动到其他区域。这会消耗 CPU/GPU 和电池。</p>
+        <p><strong>修复：</strong>使用 <code>IntersectionObserver</code> 检测 canvas 是否在视口内，不可见时暂停动画。同时在组件 <code>onUnmounted</code> 中清理定时器（部分组件已做，部分缺失）。</p>
+      </div>
+    </article>
+
+    <article class="issue high">
+      <div class="issue-head">
+        <span class="issue-tag high">P1-3</span>
+        <span class="issue-title">ScienceDiagram.vue 内联巨大 SVG — 约 3000 行</span>
+      </div>
+      <div class="issue-body">
+        <p><code>ScienceDiagram.vue</code> 将两个完整 SVG（空气组成饼图 + 大气层分层图）直接硬编码在模板中，合计约 3000 行。这导致：</p>
+        <ul>
+          <li>组件文件过大，难以维护</li>
+          <li>所有 SVG 无论是否显示都被加载到 DOM</li>
+          <li>无法复用图表组件</li>
+        </ul>
+        <p><strong>修复：</strong>将 SVG 拆分为独立文件（<code>.svg</code> 或独立 Vue 组件），通过 <code>v-if</code> 按需渲染。</p>
+      </div>
+    </article>
+
+    <article class="issue high">
+      <div class="issue-head">
+        <span class="issue-tag high">P1-4</span>
+        <span class="issue-title">Vue 组件没有使用 TypeScript</span>
+      </div>
+      <div class="issue-body">
+        <p>虽然项目配置文件是 <code>config.ts</code>（TypeScript），但所有 14 个 Vue 组件的 <code>&lt;script setup&gt;</code> 都没有 <code>lang="ts"</code>。数据文件 <code>historyData.ts</code> 有类型定义但组件没有类型约束。</p>
+        <p><strong>影响：</strong>缺乏类型检查，props 传递错误不会被编译器发现。对于教学项目，TypeScript 能提供更好的示范作用。</p>
+        <p><strong>修复：</strong>为所有组件添加 <code>lang="ts"</code> 并定义 <code>defineProps</code> 的类型接口。</p>
+      </div>
+    </article>
+
+    <article class="issue high">
+      <div class="issue-head">
+        <span class="issue-tag high">P1-5</span>
+        <span class="issue-title">组件间 CSS 大量重复</span>
+      </div>
+      <div class="issue-body">
+        <p><code>OrbitCalculator.vue</code> 和 <code>RocketSimulator.vue</code> 中的 <code>.formula-section</code>、<code>.formula-table</code> 样式几乎完全相同（各约 100 行）。<code>ResourceCard.vue</code> 和 <code>LessonTools.vue</code> 也有大量重复的卡片样式。</p>
+        <p><strong>修复：</strong>提取公共样式到 <code>custom.css</code> 或创建共享 CSS 模块（如 <code>shared-formulas.css</code>），各组件引用即可。</p>
+      </div>
+    </article>
+
+    <article class="issue high">
+      <div class="issue-head">
+        <span class="issue-tag high">P1-6</span>
+        <span class="issue-title">GitHub Social 链接无效</span>
+      </div>
+      <div class="issue-body">
+        <p><code>config.ts</code> 中 <code>socialLinks</code> 的 <code>link</code> 值为 <code>https://github.com</code>（GitHub 首页），不是实际仓库地址。导航栏 GitHub 图标点击后跳转到 GitHub 首页。</p>
+        <p><strong>修复：</strong>改为实际仓库地址。如果项目在 Gitee，可以移除 socialLinks 或改为 Gitee 链接。</p>
+      </div>
+    </article>
+
+    <article class="issue high">
+      <div class="issue-head">
+        <span class="issue-tag high">P1-7</span>
+        <span class="issue-title">所有 Vue 组件全局注册，首屏加载过重</span>
+      </div>
+      <div class="issue-body">
+        <p><code>theme/index.ts</code> 全局注册了全部 14 个组件。即使某页只需要一个 <code>OrbitCalculator</code>，所有组件（包括巨大的 <code>ScienceDiagram</code>）都会被打包进首屏 JS。</p>
+        <p><strong>修复：</strong>使用 VitePress 的 <code>defineAsyncComponent</code> 按需加载大型组件，或只在需要的页面局部注册。</p>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- P2 Medium -->
+<section class="section" id="medium">
+  <h2 class="section-title"><span class="icon">🔶</span> P2 · 中等优先级问题</h2>
+  <div class="issue-list">
+
+    <article class="issue medium">
+      <div class="issue-head">
+        <span class="issue-tag medium">P2-1</span>
+        <span class="issue-title">文档数据不一致 — 多处数字互相矛盾</span>
+      </div>
+      <div class="issue-body">
+        <table class="summary-table">
+          <thead><tr><th>来源</th><th>描述</th><th>实际</th></tr></thead>
+          <tbody>
+            <tr><td>README</td><td>"6 个交互工具"</td><td>实际有 14 个 Vue 组件</td></tr>
+            <tr><td>PROJECT.md</td><td>"4 个 Vue 组件"</td><td>实际 14 个</td></tr>
+            <tr><td>README</td><td>"30+ 张历史图片"</td><td>public/history/ 只有 7 张</td></tr>
+            <tr><td>overview.md</td><td>"航天模块（8）"</td><td>实际只有 7 节课（9-15）</td></tr>
+            <tr><td>contest/index.md</td><td>"30+ 张真实历史图片"</td><td>只有 7 张</td></tr>
+          </tbody>
+        </table>
+        <p><strong>修复：</strong>更新所有文档，使描述与仓库实际内容一致。</p>
+      </div>
+    </article>
+
+    <article class="issue medium">
+      <div class="issue-head">
+        <span class="issue-tag medium">P2-2</span>
+        <span class="issue-title">缺少无障碍支持（a11y）</span>
+      </div>
+      <div class="issue-body">
+        <ul>
+          <li>Canvas 元素没有 <code>aria-label</code> 或 <code>role</code> 属性</li>
+          <li>导航按钮（如 <code>HistoryGallery</code> 的前进/后退）缺少 <code>aria-label</code>（部分已添加）</li>
+          <li>Canvas 内容无法被屏幕阅读器读取，没有提供文本替代方案</li>
+          <li>颜色对比度在暗色主题下部分区域可能不足（如 <code>--c-text-muted</code>）</li>
+        </ul>
+        <p><strong>修复：</strong>为所有交互元素添加 ARIA 属性；为 Canvas 提供 <code>&lt;noscript&gt;</code> 或文本描述作为降级方案。</p>
+      </div>
+    </article>
+
+    <article class="issue medium">
+      <div class="issue-head">
+        <span class="issue-tag medium">P2-3</span>
+        <span class="issue-title">缺少 SEO 基础设施</span>
+      </div>
+      <div class="issue-body">
+        <ul>
+          <li>没有 sitemap 生成（VitePress 插件 <code>vitepress-plugin-sitemap</code> 可解决）</li>
+          <li>没有 <code>robots.txt</code></li>
+          <li>没有配置 OG 图片（<code>head</code> 中缺少 <code>og:image</code>）</li>
+          <li>缺少 <code>@vueuse/head</code> 或等效的 per-page meta 配置</li>
+        </ul>
+        <p><strong>修复：</strong>添加 sitemap 插件、robots.txt 和 OG 图片配置。</p>
+      </div>
+    </article>
+
+    <article class="issue medium">
+      <div class="issue-head">
+        <span class="issue-tag medium">P2-4</span>
+        <span class="issue-title">没有 Light Mode 适配</span>
+      </div>
+      <div class="issue-body">
+        <p><code>config.ts</code> 设置了 <code>appearance: false</code>，强制暗色主题。所有 CSS 变量只定义了暗色值。对于教学场景，部分教室环境可能需要亮色主题。</p>
+        <p><strong>建议：</strong>启用 VitePress 默认的外观切换，或至少提供一个对比度更好的亮色方案。</p>
+      </div>
+    </article>
+
+    <article class="issue medium">
+      <div class="issue-head">
+        <span class="issue-tag medium">P2-5</span>
+        <span class="issue-title">MathFormula.vue 使用 trust: true</span>
+      </div>
+      <div class="issue-body">
+        <p>KaTeX 配置中 <code>trust: true</code> 允许渲染任意 HTML（包括 <code>&lt;script&gt;</code>）。目前内容是硬编码的，没有安全风险。但如果未来扩展为动态内容或用户提交内容，将成为 XSS 漏洞。</p>
+        <p><strong>修复：</strong>设置为 <code>trust: false</code>，或定义明确的 trust function 只允许安全的命令。</p>
+      </div>
+    </article>
+
+    <article class="issue medium">
+      <div class="issue-head">
+        <span class="issue-tag medium">P2-6</span>
+        <span class="issue-title">historyData.ts 文件过大（3000+ 行）</span>
+      </div>
+      <div class="issue-body">
+        <p>所有历史数据（航空 + 航天 + 竞赛 + 里程碑 + 人物）全部在一个文件中。维护困难，且所有数据无论哪页使用都会被完整加载。</p>
+        <p><strong>修复：</strong>拆分为多个数据文件（<code>aviation.ts</code>、<code>space.ts</code>、<code>contests.ts</code>、<code>milestones.ts</code>），按需导入。</p>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- P3 Low -->
+<section class="section" id="low">
+  <h2 class="section-title"><span class="icon">💡</span> P3 · 低优先级 / 优化建议</h2>
+  <div class="issue-list">
+
+    <article class="issue low">
+      <div class="issue-head">
+        <span class="issue-tag low">P3-1</span>
+        <span class="issue-title">deploy.sh 包含 Windows 路径</span>
+      </div>
+      <div class="issue-body">
+        <p>注释中出现 <code>C:\zprojects\spacecourse</code>，应改为通用描述或实际仓库路径。</p>
+      </div>
+    </article>
+
+    <article class="issue low">
+      <div class="issue-head">
+        <span class="issue-tag low">P3-2</span>
+        <span class="issue-title">缺少测试</span>
+      </div>
+      <div class="issue-body">
+        <p>没有任何单元测试或 E2E 测试。建议至少为以下模块添加测试：</p>
+        <ul>
+          <li>大气计算器的物理计算逻辑</li>
+          <li>轨道计算器的 Hohmann 转移公式</li>
+          <li>V1 火箭方程计算</li>
+        </ul>
+        <p>这些物理公式是教学核心，计算错误会误导学生。</p>
+      </div>
+    </article>
+
+    <article class="issue low">
+      <div class="issue-head">
+        <span class="issue-tag low">P3-3</span>
+        <span class="issue-title">CI/CD 只配置了 GitHub，但仓库在 Gitee</span>
+      </div>
+      <div class="issue-body">
+        <p>项目使用 Gitee 托管，但 GitHub Actions 和 GitHub Pages 部署配置是唯一的 CI/CD 方案。如果代码不同步到 GitHub，这些配置不会生效。建议同时配置 Gitee Go 或确保双向同步。</p>
+      </div>
+    </article>
+
+    <article class="issue low">
+      <div class="issue-head">
+        <span class="issue-tag low">P3-4</span>
+        <span class="issue-title">竞赛模板图片路径可能无效</span>
+      </div>
+      <div class="issue-body">
+        <p><code>contest/index.md</code> 引用了 <code>./images/...</code> 路径下的 7 张模板图片，需确认这些图片是否存在于 <code>docs-site/contest/images/</code> 目录。</p>
+      </div>
+    </article>
+
+    <article class="issue low">
+      <div class="issue-head">
+        <span class="issue-tag low">P3-5</span>
+        <span class="issue-title">.env.example 缺失</span>
+      </div>
+      <div class="issue-body">
+        <p>AGENTS.md 提到了 <code>.env.local</code> 用于配置 LLM 密钥等，但仓库中没有 <code>.env.example</code> 文件说明需要哪些环境变量。</p>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- Strengths -->
+<section class="section" id="strengths">
+  <h2 class="section-title"><span class="icon">✅</span> 亮点与优势</h2>
+  <div class="issue-list">
+
+    <article class="issue good">
+      <div class="issue-head">
+        <span class="issue-tag good">亮点</span>
+        <span class="issue-title">课程设计体系完整且专业</span>
+      </div>
+      <div class="issue-body">
+        <p>18 节课覆盖"航空 → 航天 → 空天一体"完整链路，每节课都遵循"情境导入 → 原理讲解 → 工程实践 → 评价反思"的教学流程。PBL、EDP、5E、KWL 等教学方法论贯穿始终，不是贴标签而是真正融入课堂活动设计。教师手册、学生学案、评价量规一应俱全，拿来就能上课。</p>
+      </div>
+    </article>
+
+    <article class="issue good">
+      <div class="issue-head">
+        <span class="issue-tag good">亮点</span>
+        <span class="issue-title">自研中文交互工具 — 解决"水土不服"问题</span>
+      </div>
+      <div class="issue-body">
+        <p>大气参数计算器、轨道计算器、火箭仿真器、空气动力实验室等工具全部中文界面、本地运行、秒开。相比 NASA 英文工具在课堂上的"水土不服"，这些工具真正解决了教师痛点。工具设计遵循"先原理 → 再工具 → 后实践"的教学逻辑，不是简单的计算器包装。</p>
+      </div>
+    </article>
+
+    <article class="issue good">
+      <div class="issue-head">
+        <span class="issue-tag good">亮点</span>
+        <span class="issue-title">物理公式计算准确，有科学依据</span>
+      </div>
+      <div class="issue-body">
+        <p>大气计算基于 ISA 国际标准大气模型（含对流层/平流层分段公式），轨道计算使用标准 Hohmann 转移理论，火箭仿真使用经典 Tsiolkovsky 方程和分级质量比计算。公式标注了来源（如 Sutton 第 1-11 式），可追溯可验证。</p>
+      </div>
+    </article>
+
+    <article class="issue good">
+      <div class="issue-head">
+        <span class="issue-tag good">亮点</span>
+        <span class="issue-title">竞赛模板体系完整</span>
+      </div>
+      <div class="issue-body">
+        <p>覆盖"创意赛 + 成果赛"双赛道，提供方案书、海报、视频脚本、PPT、研究报告、新颖性报告、日志等 8 种模板。每个模板都有填写指南和评价量规。还配套了 4 份参赛指南（通用、创意赛专项、成果赛专项、新手常见问题），形成完整的竞赛支持体系。</p>
+      </div>
+    </article>
+
+    <article class="issue good">
+      <div class="issue-head">
+        <span class="issue-tag good">亮点</span>
+        <span class="issue-title">教学资源丰富且结构化</span>
+      </div>
+      <div class="issue-body">
+        <p>每节课都配备了"教师版 + 学生版 + 课件 + 学案 + 评价"五位一体的教学材料。工具资源标注了语言（中/英）、速度（本地/快/慢）、难度级别和课堂用法，帮助教师快速判断"这个工具怎么用、用在哪"。链接检查页面让教师课前一键验证所有工具链接是否可用。</p>
+      </div>
+    </article>
+
+    <article class="issue good">
+      <div class="issue-head">
+        <span class="issue-tag good">亮点</span>
+        <span class="issue-title">项目文档意识强</span>
+      </div>
+      <div class="issue-body">
+        <p>README、AGENTS.md、PROJECT.md、DEPLOY.md 四份文档从不同角度描述了项目。AGENTS.md 包含详细的技术栈说明、文件结构、开发流程和编码规范，方便 AI Agent 和贡献者快速上手。部署指南提供了 GitHub Pages、Vercel/Netlify、Nginx 三种方案，覆盖不同用户场景。</p>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- Roadmap -->
+<section class="section" id="roadmap">
+  <h2 class="section-title"><span class="icon">🗺️</span> 改进路线图</h2>
+
+  <table class="summary-table">
+    <caption>按优先级排列的改进行动</caption>
+    <thead>
+      <tr><th>阶段</th><th>任务</th><th>预估工时</th><th>对应问题</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>第 1 周</strong><br>紧急修复</td>
+        <td>
+          1. 提交 package.json + lock 文件<br>
+          2. 为 6 个工具创建 Markdown 包装页面<br>
+          3. 补全 Logo、缺失图片<br>
+          4. 统一许可证声明
+        </td>
+        <td>2-3 天</td>
+        <td>P0-1 ~ P0-4</td>
+      </tr>
+      <tr>
+        <td><strong>第 2 周</strong><br>质量提升</td>
+        <td>
+          5. Canvas 组件响应式改造<br>
+          6. 添加 IntersectionObserver 暂停不可见动画<br>
+          7. 修复 GitHub 链接<br>
+          8. 统一文档数据描述
+        </td>
+        <td>3-4 天</td>
+        <td>P1-1 ~ P1-6</td>
+      </tr>
+      <tr>
+        <td><strong>第 3-4 周</strong><br>架构优化</td>
+        <td>
+          9. 组件按需加载改造<br>
+          10. ScienceDiagram SVG 拆分<br>
+          11. 公共样式提取<br>
+          12. 添加 TypeScript<br>
+          13. 添加 sitemap + SEO
+        </td>
+        <td>5-7 天</td>
+        <td>P1-7, P2-1 ~ P2-3</td>
+      </tr>
+      <tr>
+        <td><strong>第 5-6 周</strong><br>成熟度提升</td>
+        <td>
+          14. 添加核心计算逻辑单元测试<br>
+          15. 补充无障碍支持<br>
+          16. 启用亮色主题<br>
+          17. 配置 Gitee Go CI
+        </td>
+        <td>5-7 天</td>
+        <td>P2-4 ~ P2-6, P3</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Verdict -->
+<section class="section" id="verdict">
+  <h2 class="section-title"><span class="icon">🏁</span> 总体评价</h2>
+
+  <div class="verdict-box">
+    <h3>一句话总结</h3>
+    <p>这是一个<strong>课程设计水平很高、但工程质量有明显短板</strong>的教学网站。内容层面（18 节课 + 竞赛体系 + 自研工具）已经可以打 88 分，但工程层面（缺失关键文件、导航大面积 404、文档不一致）阻碍了项目的可用性和可信度。</p>
+  </div>
+
+  <div class="verdict-box">
+    <h3>核心价值</h3>
+    <p>这个项目最大的价值不在于技术实现，而在于<strong>对中学空天科技教育的系统化思考</strong>。18 节课的教学设计、PBL/EDP 方法论的落地、自研中文工具的课堂适配、五位一体的教学材料体系——这些都是经过深思熟虑的。技术上的问题都可以快速修复，但这种教学设计的深度是难以复制的。</p>
+  </div>
+
+  <div class="verdict-box">
+    <h3>最紧迫的 3 件事</h3>
+    <ul>
+      <li><strong>① 补全工具页面</strong> — 6 个自研 Vue 组件已经写好了，只差 Markdown 包装页面。这是投入产出比最高的修复。</li>
+      <li><strong>② 提交 package.json</strong> — 没有它项目无法构建，所有 CI/CD 都是空转。</li>
+      <li><strong>③ 补全缺失的图片和资源</strong> — Logo、课程封面、头像等缺失资源直接影响第一观感。</li>
+    </ul>
+  </div>
+
+  <div class="verdict-box">
+    <h3>给开发者的建议</h3>
+    <p>你已经在教学设计上投入了大量精力，现在需要把同样的精力分一些给"最后一公里"的工程完善。好消息是，P0 级问题修复工作量不大（预计 2-3 天），修复后项目就能从"演示级"跃升到"可用级"。建议优先按路线图第 1 周的任务执行，让网站先能跑起来。</p>
+  </div>
+</section>
+
+<footer class="report-footer">
+  <p>本报告由 AI Agent 于 2026-09-21 自动生成 · 基于仓库代码静态分析 · 未包含运行时测试</p>
+  <p>仓库地址：<a href="https://gitee.com/felixeleven/aerospacetech" target="_blank" rel="noopener noreferrer">gitee.com/felixeleven/aerospacetech</a> · GPL-2.0 协议</p>
+</footer>
+
+</div>
+</body>
+</html>

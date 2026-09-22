@@ -74,6 +74,36 @@ export const lessonTools: Record<number, ToolResource[]> = {
       guideUrl: '/tools/guide-foilsim'
     }
   ],
+  4: [
+    {
+      name: 'B站：98.43 米！纸飞机最远距离世界纪录',
+      type: 'web', level: 'beginner', lang: 'zh', speed: 'fast',
+      desc: '上海学生刷新纸飞机最远投掷距离世界纪录（98.43 米）的新闻报道——课堂导入首选，用真实纪录点燃兴趣。',
+      usage: '第 4 课开场 3 分钟播放，引出"纸飞机背后是工程学"的课题。',
+      url: 'https://www.bilibili.com/video/BV1SbiKBWEk6/'
+    },
+    {
+      name: 'B站：逆天滞空纸飞机 Star16（28.7 秒）',
+      type: 'web', level: 'beginner', lang: 'zh', speed: 'fast',
+      desc: '室内滞空 28.7 秒的超强纸飞机设计解析——滞空挑战的最佳参照。',
+      usage: 'Phase 1 头脑风暴阶段播放，激发"我的飞机为什么飞不了这么久"的探究欲。',
+      url: 'https://www.bilibili.com/video/BV1qay1BPEpN/'
+    },
+    {
+      name: '中科院物理所：如何折一架飞得最远的纸飞机',
+      type: 'web', level: 'beginner', lang: 'zh', speed: 'fast',
+      desc: '中科院物理所科普文章（腾讯新闻转载），从物理原理讲纸飞机优化——权威中文科普。',
+      usage: '课后阅读：对照本文检验你本课的改进方向是否有理论依据。',
+      url: 'http://news.qq.com/rain/a/20251213A03FN000'
+    },
+    {
+      name: 'B站：Takuo Toda「老虎战机」折法教学',
+      type: 'web', level: 'intermediate', lang: 'zh', speed: 'fast',
+      desc: '世界纪录保持者戸田拓夫的招牌机折法教学视频。',
+      usage: 'Phase 4 迭代卡壳时参考：世界级机型是怎么折的。',
+      url: 'https://www.bilibili.com/video/BV1NfxDzKEFB/'
+    }
+  ],
   5: [
     {
       name: '本站：升力演示器（试飞前仿真）',

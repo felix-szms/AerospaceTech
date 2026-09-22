@@ -280,12 +280,8 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import katex from 'katex'
-
-/* ============== 物理常数与模型参数 ============== */
-const CL0 = 0.3 // α=0 时的升力系数（对称翼型参考）
-const CL_ALPHA = 0.1 // 升力系数随迎角的斜率（/度）
-const STALL_ALPHA = 15 // 临界迎角（度）
-const STALL_ALPHA_MIN = -5 // 负失速迎角（度）
+import { liftForce, STALL_ALPHA, STALL_ALPHA_MIN } from '../utils/physics'
+import { useResponsiveCanvas, useVisibility } from '../composables/useCanvas'
 
 /* ============== 响应式状态 ============== */
 const params = reactive({
@@ -306,6 +302,9 @@ let time = 0 // 动画时钟（用于粒子位移）
 let particles = [] // 气流粒子
 const PARTICLE_COUNT = 90
 
+// 视口可见性：滚出视口暂停动画，回到视口恢复
+const visible = useVisibility(canvasRef)
+
 /* ============== 计算结果 ============== */
 const isStalled = computed(
   () => params.alpha > STALL_ALPHA || params.alpha < STALL_ALPHA_MIN
@@ -318,38 +317,21 @@ const results = reactive({
   flowRegime: ''
 })
 
-// 升力系数模型：线性 + 失速衰减
-const computeCL = (alphaDeg) => {
-  if (alphaDeg > STALL_ALPHA) {
-    // 失速后 CL 急剧下降（每超 1° 衰减 0.07）
-    const overshoot = alphaDeg - STALL_ALPHA
-    const clMax = CL0 + CL_ALPHA * STALL_ALPHA
-    return Math.max(0.2, clMax - overshoot * 0.07)
-  }
-  if (alphaDeg < STALL_ALPHA_MIN) {
-    const overshoot = STALL_ALPHA_MIN - alphaDeg
-    const clMin = CL0 + CL_ALPHA * STALL_ALPHA_MIN
-    return Math.min(-0.2, clMin + overshoot * 0.07)
-  }
-  return CL0 + CL_ALPHA * alphaDeg
-}
-
 const calculate = () => {
-  const v = params.velocity
-  const S = params.area
-  const rho = params.density
-  const alpha = params.alpha
+  const r = liftForce({
+    v: params.velocity,
+    S: params.area,
+    rho: params.density,
+    alphaDeg: params.alpha
+  })
 
-  const CL = computeCL(alpha)
-  const q = 0.5 * rho * v * v // 动压
-  const L = q * S * CL // 升力
-
-  results.CL = CL
-  results.dynamicPressure = q
-  results.lift = Math.max(0, L)
+  results.CL = r.CL
+  results.dynamicPressure = r.dynamicPressure
+  results.lift = r.lift
 
   // 流态描述
-  if (isStalled.value) results.flowRegime = '气流分离'
+  const alpha = params.alpha
+  if (r.stalled) results.flowRegime = '气流分离'
   else if (alpha > 12) results.flowRegime = '高升力'
   else if (alpha < 0) results.flowRegime = '负升力'
   else results.flowRegime = '正常巡航'
@@ -405,7 +387,7 @@ const renderFormula = (el, tex, displayMode = true) => {
       displayMode,
       throwOnError: false,
       strict: false,
-      trust: true,
+      trust: () => false,
       output: 'htmlAndMathml'
     })
   } catch (e) {
@@ -474,17 +456,26 @@ const airfoilProfile = () => {
   return { top, bottom }
 }
 
+/* 设计稿坐标系：所有绘制按 760×380 进行，每帧按当前 CSS 尺寸算出等比缩放
+ * （dpr × 当前宽高/设计宽高），任意画布宽度下都与原设计完全等比、不模糊 */
+const DESIGN = { w: 760, h: 380 }
+
 const drawScene = () => {
   const canvas = canvasRef.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
-  const W = canvas.width
-  const H = canvas.height
+  const cw = canvas.clientWidth
+  const ch = canvas.clientHeight
+  if (!cw || !ch) return
+  const dpr = window.devicePixelRatio || 1
+  ctx.setTransform((dpr * cw) / DESIGN.w, 0, 0, (dpr * ch) / DESIGN.h, 0, 0)
+  const W = DESIGN.w
+  const H = DESIGN.h
 
-  // 翼型参数（像素）
+  // 翼型参数（像素，设计坐标）
   const cx = W / 2
   const cy = H / 2 + 10 // 翼型中心略偏下
-  const chord = 260 // 弦长（像素）
+  const chord = 260 // 弦长（设计像素）
   const alphaRad = (params.alpha * Math.PI) / 180
 
   /* ----- 1. 背景：深空 ----- */
@@ -771,10 +762,26 @@ const drawScene = () => {
   time += 1
 }
 
+// 动画循环（不可见时自动暂停）
 const animate = () => {
+  if (!visible.value) {
+    animationId = null
+    return
+  }
   drawScene()
   animationId = requestAnimationFrame(animate)
 }
+
+// 响应式画布：2:1，宽度自适应容器（最大 760px）；尺寸变化后重绘一帧即可
+// （粒子在设计坐标系中运动，与 CSS 尺寸无关，无需重布）
+useResponsiveCanvas(canvasRef, 760 / 380, () => {
+  drawScene()
+}, 760)
+
+// 回到视口恢复动画
+watch(visible, (v) => {
+  if (v && animationId === null) animate()
+})
 
 /* ============== 生命周期 ============== */
 watch(
@@ -786,10 +793,8 @@ watch(
 )
 
 onMounted(() => {
-  // 初始化粒子
-  if (canvasRef.value) {
-    initParticles(canvasRef.value.width, canvasRef.value.height)
-  }
+  // 初始化粒子（在设计坐标系中运动）
+  initParticles(DESIGN.w, DESIGN.h)
   calculate()
   renderAllFormulas()
   nextTick(() => {

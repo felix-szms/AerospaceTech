@@ -7,7 +7,8 @@
     "dev": "vitepress dev docs-site",
     "build": "vitepress build docs-site",
     "preview": "vitepress preview docs-site",
-    "gen-lessons": "python generate_lessons.py"
+    "gen-lessons": "python generate_lessons.py",
+    "test": "node --experimental-strip-types --test test/physics.test.mjs"
   },
   "dependencies": {
     "@mdit/plugin-katex": "^1.0.1",
@@ -21,6 +22,6 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "license": "MIT",
+  "license": "GPL-2.0",
   "packageManager": "pnpm@9.15.9"
 }

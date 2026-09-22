@@ -97,57 +97,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import MathFormula from './MathFormula.vue'
+import { isaAtmosphere, pressureToAltitude } from '../utils/physics'
+import { useResponsiveCanvas } from '../composables/useCanvas'
 
-// ===== ISA 国际标准大气模型 =====
-// 各层参数：[底边界高度m, 底界温度K, 温度递减率K/m]
-const LAYERS = [
-  { h0: 0,     T0: 288.15, L: -0.0065 },
-  { h0: 11000, T0: 216.65, L: 0.0 },
-  { h0: 20000, T0: 216.65, L: 0.001 },
-  { h0: 32000, T0: 228.65, L: 0.0028 },
-  { h0: 47000, T0: 270.65, L: 0.0 },
-  { h0: 51000, T0: 270.65, L: -0.0028 },
-  { h0: 71000, T0: 214.65, L: -0.002 },
-]
-const LAYER_NAMES = ['对流层', '平流层（下）', '平流层（上）', '中间层（下）', '中间层（恒温）', '中间层（上）', '热层（起始）']
-
-const P0 = 101325 // Pa
-const g = 9.80665
-const R = 287.05287
-
-// 计算 ISA 大气参数
-function isa(h) {
-  h = Math.max(0, Math.min(80000, h))
-  let layerIdx = 0
-  for (let i = LAYERS.length - 1; i >= 0; i--) {
-    if (h >= LAYERS[i].h0) { layerIdx = i; break }
-  }
-  const layer = LAYERS[layerIdx]
-  const dh = h - layer.h0
-  const T = layer.T0 + layer.L * dh
-
-  // 气压：需要从海平面逐层积分
-  let P = P0
-  for (let i = 0; i < layerIdx; i++) {
-    const l = LAYERS[i]
-    const dhLayer = LAYERS[i + 1].h0 - l.h0
-    P = layerPressure(P, l, dhLayer)
-  }
-  P = layerPressure(P, layer, dh)
-
-  const rho = P / (R * T)
-  const a = Math.sqrt(1.4 * R * T)
-  return { T, P: P / 100, rho, a, layer: LAYER_NAMES[layerIdx] }
-}
-
-function layerPressure(P, layer, dh) {
-  if (Math.abs(layer.L) < 1e-9) {
-    return P * Math.exp(-g * dh / (R * layer.T0))
-  }
-  return P * Math.pow(1 + layer.L * dh / layer.T0, -g / (layer.L * R))
-}
+// 层底边界高度（米），仅用于图表绘制层边界虚线；物理计算统一走 utils/physics
+const LAYER_BOUNDARIES_M = [11000, 20000, 32000, 47000, 51000, 71000]
 
 // ===== 组件状态 =====
 const altitude = ref(5)
@@ -166,9 +122,9 @@ const presets = [
 ]
 
 function calc() {
-  const r = isa(altitude.value * 1000)
-  results.T = r.T - 273.15
-  results.P = r.P
+  const r = isaAtmosphere(altitude.value * 1000)
+  results.T = r.T - 273.15 // 展示层：开尔文 → 摄氏度
+  results.P = r.P / 100 // 展示层：帕斯卡 → hPa
   results.rho = r.rho
   results.a = r.a
   results.layer = r.layer
@@ -176,22 +132,21 @@ function calc() {
 }
 
 // 测压反推高度
-function inverseAltitude(P_hPa) {
-  const ratio = P_hPa / 1013.25
-  if (ratio <= 0) return 0
-  return 44330 * (1 - Math.pow(ratio, 1 / 5.255))
-}
-const invH = () => inverseAltitude(measuredP.value)
+const inverseH = computed(() => pressureToAltitude(measuredP.value))
 
-import { computed } from 'vue'
-const inverseH = computed(() => inverseAltitude(measuredP.value))
-
-// ===== Canvas 曲线图 =====
+// ===== Canvas 曲线图：按 640×360 设计坐标绘制，每次按当前 CSS 尺寸等比缩放（dpr 保清晰） =====
+const CHART_DESIGN = { w: 640, h: 360 }
 function drawChart() {
   const canvas = chartRef.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
-  const W = canvas.width, H = canvas.height
+  const cw = canvas.clientWidth
+  const ch = canvas.clientHeight
+  if (!cw || !ch) return
+  const dpr = window.devicePixelRatio || 1
+  ctx.setTransform((dpr * cw) / CHART_DESIGN.w, 0, 0, (dpr * ch) / CHART_DESIGN.h, 0, 0)
+  const W = CHART_DESIGN.w
+  const H = CHART_DESIGN.h
   const pad = { l: 55, r: 55, t: 30, b: 40 }
   const pw = W - pad.l - pad.r
   const ph = H - pad.t - pad.b
@@ -199,10 +154,11 @@ function drawChart() {
   ctx.fillStyle = '#0a1929'
   ctx.fillRect(0, 0, W, H)
 
-  // 采样 0-80km
+  // 采样 0-80km（isaAtmosphere 返回 Pa，图表用 hPa）
   const pts = []
   for (let h = 0; h <= 80000; h += 500) {
-    pts.push({ h, ...isa(h) })
+    const r = isaAtmosphere(h)
+    pts.push({ h, T: r.T, P: r.P / 100 })
   }
 
   // 温度范围 -70~20°C；气压对数轴 0.01-1100 hPa
@@ -237,8 +193,8 @@ function drawChart() {
   // 层边界虚线
   ctx.strokeStyle = 'rgba(179,136,255,0.3)'
   ctx.setLineDash([4, 4])
-  LAYERS.slice(1).forEach(l => {
-    const x = H2X(l.h0)
+  LAYER_BOUNDARIES_M.forEach(h0 => {
+    const x = H2X(h0)
     ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + ph); ctx.stroke()
   })
   ctx.setLineDash([])
@@ -270,12 +226,12 @@ function drawChart() {
   ctx.fillText('■ 气压(对数)', pad.l + 70, pad.t + 4)
 
   // 当前高度红点
-  const cur = isa(altitude.value * 1000)
+  const cur = isaAtmosphere(altitude.value * 1000)
   const cx = H2X(altitude.value * 1000)
   ctx.fillStyle = '#ffd54f'
   ctx.shadowColor = '#ffd54f'
   ctx.shadowBlur = 10
-  ;[[T2Y(cur.T - 273.15)], [P2Y(cur.P)]].forEach(([y]) => {
+  ;[[T2Y(cur.T - 273.15)], [P2Y(cur.P / 100)]].forEach(([y]) => {
     ctx.beginPath(); ctx.arc(cx, y, 5, 0, Math.PI * 2); ctx.fill()
   })
   ctx.shadowBlur = 0
@@ -285,6 +241,11 @@ function drawChart() {
   ctx.beginPath(); ctx.moveTo(cx, pad.t); ctx.lineTo(cx, pad.t + ph); ctx.stroke()
   ctx.setLineDash([])
 }
+
+// 响应式画布：16:9，宽度自适应容器（最大 640px）；无持续动画，尺寸变化时重绘即可
+useResponsiveCanvas(chartRef, 640 / 360, () => {
+  drawChart()
+}, 640)
 
 watch(altitude, calc)
 onMounted(calc)

@@ -39,8 +39,8 @@ git init
 git add .
 git commit -m "初始化《空天科技探秘》教学网站"
 
-# 在 https://github.com/new 创建仓库（建议 Public，方便服务器拉取）
-git remote add origin https://github.com/<你的用户名>/<仓库名>.git
+# 仓库已托管在 Gitee
+git remote add origin git@gitee.com:felixeleven/aerospacetech.git
 git branch -M main
 git push -u origin main
 ```
@@ -52,7 +52,7 @@ git push -u origin main
 ssh user@your-server-ip
 
 # 克隆代码到任意目录（用于修改 deploy.sh 配置）
-git clone https://github.com/<你的用户名>/<仓库名>.git
+git clone https://gitee.com/felixeleven/aerospacetech.git
 cd <仓库名>
 
 # 编辑 deploy.sh，修改三处配置
@@ -62,7 +62,7 @@ nano deploy/deploy.sh
 需要修改的 3 处（在脚本开头的"配置区"）：
 
 ```bash
-REPO_URL="https://github.com/<你的用户名>/<仓库名>.git"  # ← 改成你的仓库
+REPO_URL="https://gitee.com/felixeleven/aerospacetech.git"
 DOMAIN="your-domain.com"                                  # ← 改成你的域名或 IP
 ```
 
@@ -135,7 +135,7 @@ sudo mkdir -p /var/www/spacecourse
 sudo chown $USER:$USER /var/www/spacecourse
 
 cd /var/www/spacecourse
-git clone https://github.com/<你的用户名>/<仓库名>.git .
+git clone https://gitee.com/felixeleven/aerospacetech.git .
 npm install
 npm run build
 ```

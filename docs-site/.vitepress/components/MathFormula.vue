@@ -24,7 +24,7 @@ const html = computed(() => {
       displayMode: props.display,
       throwOnError: false,
       strict: false,
-      trust: true,
+      trust: () => false,
       output: 'htmlAndMathml'
     })
   } catch (e) {

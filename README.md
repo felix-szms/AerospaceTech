@@ -9,8 +9,9 @@
 
 - **18 课时教学内容**：每课 5 个文件（讲义 / 实践活动 / 学生任务单 / 教师参考 / 素材清单），共 90 个 Markdown
 - **7 份赛事对接模板**：创意方案、研究报告、查新报告、研究日志、展示海报、答辩 PPT、展示视频
-- **5 个交互式工具**：升力演示器、轨道参数计算器、火箭仿真器、中国航天成就时间线、航天任务模拟器
-- **30 张历史图片**：航空发展历程（1783-2024）、航天发展历程（1957-2026）
+- **6 个自研中文交互工具**：升力演示器、大气参数计算器、轨道参数计算器、火箭仿真器、中国航天成就时间线、航天任务模拟器
+- **29 张历史图片**：航空发展历程（1903-2024）、航天发展历程（1957-2026）
+- **10 张纸飞机教学图**：折法图解、调校指南、锦标赛规则（第 3、4 课配套）
 - **10 类科学示意图**：SVG 矢量图，覆盖卡门线、伯努利原理、四力平衡、EDP 循环等核心概念
 
 ## 🛠️ 技术栈（全部为最新稳定版）
@@ -95,15 +96,16 @@ spacecourse/
     │
     ├── lessons/                 # 18 个课时页面（lesson-01.md ~ lesson-18.md）
     ├── contest/                 # 赛事专区（9 个页面）
-    ├── tools/                   # 交互工具页面（5 个）
+    ├── tools/                   # 交互工具页面（6 个 + 3 指南 + 1 自检）
     │
     ├── public/
     │   ├── logo.svg             # 网站 Logo
-    │   └── history/             # 30 张历史图片（本地化，无外部依赖）
+    │   ├── history/             # 29 张历史图片（本地化，无外部依赖）
+    │   └── paper-airplane/      # 10 张纸飞机教学图
     │
     └── .vitepress/
         ├── config.ts            # VitePress 配置（导航/侧边栏/KaTeX）
-        ├── components/          # 7 个 Vue 交互组件
+        ├── components/          # Vue 交互组件（含共享物理模块引用）
         │   ├── OrbitCalculator.vue        # 🛰️ 轨道参数计算器
         │   ├── RocketSimulator.vue        # 🚀 火箭仿真器
         │   ├── AerodynamicsLab.vue        # 🛩️ 升力演示器
@@ -115,28 +117,29 @@ spacecourse/
         │   ├── SpaceHistory.vue           # 🚀 航天史封装
         │   └── MathFormula.vue            # 📐 公式渲染组件
         ├── data/
-        │   └── historyData.ts    # 历史数据（航空+航天）
+        │   ├── historyData.ts    # 历史数据（航空+航天）
+        │   └── toolResources.ts  # 在线体验工具资源（14 课次嵌入）
+        ├── utils/
+        │   └── physics.ts        # 物理计算共享模块（ISA/轨道/火箭/升力）
         ├── theme/
         │   ├── index.ts          # 主题入口（注册全局组件）
         └── styles/
             └── custom.css        # 深空主题样式
+
+test/
+└── physics.test.mjs           # 物理计算单元测试（21 项，npm test）
 ```
 
 ## 🌐 部署
 
 详见 [DEPLOY.md](./DEPLOY.md)。简要说明：
 
-### GitHub Pages
-1. 推送到 GitHub
-2. 仓库 Settings → Pages → Source: GitHub Actions
-3. 添加工作流 `.github/workflows/deploy.yml`（见 DEPLOY.md）
-
-### Linux 服务器（Nginx）
+### Linux 服务器（Nginx，标准生产方案）
 ```bash
 npm install
 npm run build
 sudo cp -r docs-site/.vitepress/dist/* /var/www/spacecourse/
-# 配置 nginx 指向该目录
+# 配置 nginx 指向该目录（项目提供 deploy/nginx.conf 一键脚本见 deploy/）
 ```
 
 ### Vercel / Netlify / Cloudflare Pages
@@ -145,11 +148,13 @@ sudo cp -r docs-site/.vitepress/dist/* /var/www/spacecourse/
 
 ## 📊 项目统计
 
-- **教学内容**：100+ Markdown 文件，约 37 万字符
-- **网站页面**：36 个 HTML 页面
-- **历史图片**：30 张（覆盖 1783-2026 年）
-- **交互组件**：10 个 Vue 组件
-- **构建产物**：约 7 MB（纯静态）
+- **教学内容**：100+ Markdown 文件（18 课时 × 5 件套 + 7 赛事模板）
+- **网站页面**：37 个 HTML 页面
+- **交互工具**：6 个自研中文工具（升力演示器/大气参数计算器/轨道计算器/火箭仿真器/航天时间线/任务模拟器）
+- **图片资源**：29 张历史图片（1783-2026）+ 10 张纸飞机教学图（本地化，无外部依赖）
+- **Vue 组件**：16 个
+- **物理单元测试**：21 项（`npm test`，覆盖 ISA 大气/轨道/火箭方程/升力模型）
+- **构建产物**：纯静态，可部署任意平台
 
 ## 📝 教学法
 
@@ -159,4 +164,4 @@ sudo cp -r docs-site/.vitepress/dist/* /var/www/spacecourse/
 
 ## 📄 License
 
-MIT
+GPL-2.0（见 [LICENSE](./LICENSE)）

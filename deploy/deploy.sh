@@ -7,7 +7,7 @@ set -e
 
 # ============ 配置区（按需修改）============
 PROJECT_NAME="spacecourse"
-REPO_URL="https://github.com/<你的用户名>/<仓库名>.git"   # ← 改成你的仓库地址
+REPO_URL="https://gitee.com/felixeleven/aerospacetech.git"   # Gitee 仓库地址
 DEPLOY_DIR="/var/www/${PROJECT_NAME}"
 NGINX_CONF_SRC="./deploy/nginx.conf"
 NGINX_CONF_DEST="/etc/nginx/conf.d/${PROJECT_NAME}.conf"

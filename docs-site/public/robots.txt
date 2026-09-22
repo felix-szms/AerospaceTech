@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# 部署到正式域名后，将下行改为绝对地址，如：
+# Sitemap: https://your-domain.com/sitemap.xml
+Sitemap: /sitemap.xml

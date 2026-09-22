@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>纸飞机科学实验室 · 教学资源包</title>
+<style>
+:root {
+  --c-bg: #f8f9fc;
+  --c-surface: #ffffff;
+  --c-primary: #1a73e8;
+  --c-primary-light: #e8f0fe;
+  --c-accent: #ea4335;
+  --c-success: #34a853;
+  --c-warning: #fbbc04;
+  --c-text: #202124;
+  --c-text-2: #5f6368;
+  --c-border: #dadce0;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.04);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: var(--c-bg); color: var(--c-text); line-height: 1.7; }
+
+/* Hero */
+.hero { background: linear-gradient(135deg, #1a237e 0%, #0d47a1 40%, #01579b 100%); color: #fff; padding: 3rem 1.5rem 2.5rem; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: "✈"; position: absolute; font-size: 12rem; opacity: .06; top: -2rem; right: -1rem; transform: rotate(-15deg); }
+.hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: .5rem; letter-spacing: .02em; }
+.hero p { font-size: 1.05rem; opacity: .88; max-width: 640px; margin: 0 auto; }
+.hero .badge-row { display: flex; gap: .5rem; justify-content: center; margin-top: 1.2rem; flex-wrap: wrap; }
+.badge { display: inline-flex; align-items: center; gap: .35rem; background: rgba(255,255,255,.15); backdrop-filter: blur(4px); border-radius: 20px; padding: .3rem .8rem; font-size: .82rem; }
+
+/* Nav */
+.toc { max-width: 960px; margin: -1.5rem auto 0; padding: 0 1rem; position: relative; z-index: 2; }
+.toc-inner { background: var(--c-surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem 1.5rem; display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.toc a { text-decoration: none; color: var(--c-primary); font-size: .88rem; padding: .35rem .75rem; border-radius: 6px; background: var(--c-primary-light); transition: all .2s; white-space: nowrap; }
+.toc a:hover { background: var(--c-primary); color: #fff; }
+
+/* Sections */
+.container { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem; }
+section { margin-bottom: 2.5rem; }
+h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--c-primary); display: flex; align-items: center; gap: .5rem; }
+h3 { font-size: 1.15rem; font-weight: 600; margin: 1.2rem 0 .6rem; color: var(--c-primary); }
+h4 { font-size: 1rem; font-weight: 600; margin: .8rem 0 .4rem; }
+p, li { font-size: .95rem; color: var(--c-text); }
+p { margin-bottom: .6rem; }
+ul, ol { padding-left: 1.5rem; margin-bottom: .8rem; }
+li { margin-bottom: .3rem; }
+
+/* Cards */
+.card { background: var(--c-surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 1.2rem; }
+.card img { width: 100%; display: block; }
+.card-body { padding: 1rem 1.2rem; }
+.card-body p { margin-bottom: .4rem; }
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; }
+
+/* Info box */
+.info-box { border-left: 4px solid var(--c-primary); background: var(--c-primary-light); padding: .8rem 1rem; border-radius: 0 8px 8px 0; margin: .8rem 0; }
+.info-box.warn { border-left-color: var(--c-warning); background: #fef7e0; }
+.info-box.success { border-left-color: var(--c-success); background: #e6f4ea; }
+.info-box.danger { border-left-color: var(--c-accent); background: #fce8e6; }
+.info-box strong { display: block; margin-bottom: .2rem; }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; margin: .8rem 0 1rem; font-size: .9rem; }
+th { background: var(--c-primary); color: #fff; padding: .6rem .8rem; text-align: left; font-weight: 600; }
+td { padding: .55rem .8rem; border-bottom: 1px solid var(--c-border); }
+tr:nth-child(even) td { background: #f8f9fa; }
+
+/* Video list */
+.video-list { list-style: none; padding: 0; }
+.video-list li { background: var(--c-surface); border-radius: 8px; box-shadow: var(--shadow); padding: 1rem 1.2rem; margin-bottom: .8rem; transition: transform .2s; }
+.video-list li:hover { transform: translateY(-2px); }
+.video-list .title { font-weight: 600; color: var(--c-primary); margin-bottom: .2rem; }
+.video-list .meta { font-size: .82rem; color: var(--c-text-2); }
+.video-list a { color: var(--c-primary); }
+
+/* Tag */
+.tag { display: inline-block; font-size: .75rem; padding: .15rem .5rem; border-radius: 4px; margin-right: .3rem; font-weight: 500; }
+.tag-blue { background: #e8f0fe; color: #1a73e8; }
+.tag-green { background: #e6f4ea; color: #137333; }
+.tag-red { background: #fce8e6; color: #c5221f; }
+.tag-orange { background: #fef7e0; color: #e37400; }
+.tag-purple { background: #f3e8fd; color: #7b1fa2; }
+
+/* Print */
+@media print {
+  .hero { background: #1a237e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .toc { display: none; }
+  .card, .video-list li { break-inside: avoid; }
+}
+@media (max-width: 600px) {
+  .hero h1 { font-size: 1.5rem; }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <h1>🛩️ 纸飞机科学实验室</h1>
+  <p>教学资源包 — 图解 · 视频 · 活动设计，一站式教学支持</p>
+  <div class="badge-row">
+    <span class="badge">📐 空气动力学原理图</span>
+    <span class="badge">📄 折法步骤图解</span>
+    <span class="badge">🔬 探究站操作指南</span>
+    <span class="badge">🎬 教学视频推荐</span>
+  </div>
+</header>
+
+<!-- ===== TOC ===== -->
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#part1">一、空气动力学原理图</a>
+    <a href="#part2">二、纸飞机折法步骤图</a>
+    <a href="#part3">三、探究站操作图</a>
+    <a href="#part4">四、教学视频推荐</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ======================== PART 1 ======================== -->
+<section id="part1">
+<h2>📐 一、空气动力学原理图</h2>
+<p>以下示意图可直接用于课件或课堂投屏，帮助学生直观理解纸飞机飞行背后的物理原理。</p>
+
+<div class="grid-2">
+  <div class="card">
+    <img src="./01_四力平衡.jpg" alt="四力平衡原理图">
+    <div class="card-body">
+      <h4>① 四力平衡图</h4>
+      <p><span class="tag tag-blue">升力</span><span class="tag tag-red">重力</span><span class="tag tag-green">推力</span><span class="tag tag-orange">阻力</span></p>
+      <p>展示纸飞机飞行中受到的四大作用力：升力（机翼上下压差产生）、重力（地球引力）、推力（投掷初始动能）、阻力（空气摩擦与形状阻力）。平衡时 L=W、T=D。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="./02_迎角失速.jpg" alt="迎角与失速示意图">
+    <div class="card-body">
+      <h4>② 迎角与失速</h4>
+      <p><span class="tag tag-green">正常飞行</span><span class="tag tag-orange">最大升力</span><span class="tag tag-red">失速</span></p>
+      <p>三面板对比：小迎角（~5°）气流平滑、中等迎角（~15°）升力最大、大迎角（>20°）气流分离导致失速。帮助学生理解"抬头不等于飞得高"。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="./03_重心稳定性.jpg" alt="重心稳定性示意图">
+    <div class="card-body">
+      <h4>③ 重心（CG）与稳定性</h4>
+      <p><span class="tag tag-green">稳定</span><span class="tag tag-orange">中性</span><span class="tag tag-red">不稳定</span></p>
+      <p>三架飞机对比：重心（⊕）在压力中心（⊗）前方 → 稳定；重合 → 中性；后方 → 翻转失控。经验法则：重心在机翼前缘往后约 1/3 弦长处最稳定。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="./04_展弦比.jpg" alt="展弦比对比图">
+    <div class="card-body">
+      <h4>④ 展弦比（Aspect Ratio）</h4>
+      <p><span class="tag tag-blue">低AR</span><span class="tag tag-green">中AR</span><span class="tag tag-purple">高AR</span></p>
+      <p>三种翼型俯视对比：低展弦比（短宽翼，适合距离赛）、中展弦比（均衡）、高展弦比（细长翼，诱导阻力小，适合滞空赛）。公式：AR = 翼展² / 机翼面积。</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ======================== PART 2 ======================== -->
+<section id="part2">
+<h2>📄 二、纸飞机折法步骤图</h2>
+<p>三种经典折法，由易到难。建议打印后分发给学生，或投屏逐步演示。</p>
+
+<div class="grid-2">
+  <div class="card">
+    <img src="./05_滑翔型折法.jpg" alt="滑翔型纸飞机折法">
+    <div class="card-body">
+      <h4>🛫 滑翔型（推荐基线机型）</h4>
+      <p><span class="tag tag-green">难度 ★★</span><span class="tag tag-blue">适合滞空赛</span></p>
+      <p>机翼宽大、展弦比适中，提供较大升力。适合追求滞空时间。关键要点：上反角（V形展开）提供横向稳定性。</p>
+      <p><strong>适用赛道：</strong>最长滞空赛、基础练习</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="./06_镖型折法.jpg" alt="镖型纸飞机折法">
+    <div class="card-body">
+      <h4>🚀 镖型（速度之王）</h4>
+      <p><span class="tag tag-green">难度 ★</span><span class="tag tag-orange">适合距离赛</span></p>
+      <p>机头尖锐、机身窄长、阻力最小。多次折叠机头集中配重，投掷速度快。适合追求飞行距离。</p>
+      <p><strong>适用赛道：</strong>最远距离赛、快速入门</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="./07_空中之王折法.jpg" alt="空中之王纸飞机折法">
+    <div class="card-body">
+      <h4>🏆 空中之王 Sky King（挑战级）</h4>
+      <p><span class="tag tag-red">难度 ★★★★</span><span class="tag tag-purple">学有余力挑战</span></p>
+      <p>日本户田拓夫（Takuo Toda）经典设计，曾以 29.2 秒保持世界滞空纪录 15 年。极宽机翼 + 大展弦比 + 明显上反角。需要高天花板室内场地。</p>
+      <p><strong>适用赛道：</strong>滞空挑战、进阶探索</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ======================== PART 3 ======================== -->
+<section id="part3">
+<h2>🔬 三、探究站操作示意图</h2>
+<p>四个探究站分组轮转，每站约 6 分钟。全班分 4 大组，轮流到各站动手实验。</p>
+
+<div class="card">
+  <img src="./08_探究站总览.jpg" alt="探究站总览">
+  <div class="card-body">
+    <h4>四大探究站总览</h4>
+    <table>
+      <tr><th>探究站</th><th>核心变量</th><th>实验器材</th><th>关键发现</th></tr>
+      <tr><td>站 1 · 升力探究</td><td>机翼面积</td><td>吹风机、不同大小纸翼、电子秤</td><td>升力 ∝ 面积，但面积大阻力也大</td></tr>
+      <tr><td>站 2 · 重心实验</td><td>重心位置（CG）</td><td>回形针 0/1/3 个、纸飞机</td><td>重心前 1/3 弦长最稳定</td></tr>
+      <tr><td>站 3 · 迎角失速</td><td>迎角（AoA）</td><td>吹风机风洞、量角器、手机慢动作</td><td>超过临界迎角 → 失速坠落</td></tr>
+      <tr><td>站 4 · 阻力对比</td><td>外形 &amp; 表面粗糙度</td><td>尖头 / 钝头飞机、揉皱纸飞机</td><td>尖头低阻力，光滑优于褶皱</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <img src="./09_调校三板斧.jpg" alt="调校三板斧">
+  <div class="card-body">
+    <h4>🔧 纸飞机调校三板斧</h4>
+    <p>就像真飞机有飞行控制面，纸飞机也有"三大舵"：</p>
+    <table>
+      <tr><th>调校手段</th><th>对应真飞机</th><th>效果</th><th>操作方法</th></tr>
+      <tr><td>升降舵 Elevator</td><td>水平尾翼后缘</td><td>控制俯仰（抬头/低头）</td><td>机翼后缘向上折 → 抬头；向下折 → 低头</td></tr>
+      <tr><td>副翼 Aileron</td><td>机翼后缘两侧</td><td>控制滚转（左倾/右倾）</td><td>一侧后缘微折 → 向该侧转弯</td></tr>
+      <tr><td>方向舵 Rudder</td><td>垂直尾翼后缘</td><td>控制偏航（左转/右转）</td><td>机身尾部向一侧弯折 → 机头转向该侧</td></tr>
+    </table>
+    <div class="info-box">
+      <strong>💡 调校口诀</strong>
+      "栽头 → 增大升降舵；偏航 → 调整方向舵；侧翻 → 加大上反角。每次只动一点点！"
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <img src="./10_锦标赛规则.jpg" alt="锦标赛规则">
+  <div class="card-body">
+    <h4>🏅 班级纸飞机锦标赛规则</h4>
+    <table>
+      <tr><th>赛道</th><th>规则</th><th>评分</th></tr>
+      <tr><td>🚀 最远距离赛</td><td>每人 3 次机会，取最远距离；双脚不得越线</td><td>距离（米）排名</td></tr>
+      <tr><td>⏱️ 最长滞空赛</td><td>每人 3 次机会，2 名计时员独立计时取平均</td><td>时间（秒）排名</td></tr>
+      <tr><td>🎯 精准着陆赛</td><td>10 米外靶心，3 次取最佳</td><td>靶心 10 分 / 中环 5 分 / 外环 2 分</td></tr>
+    </table>
+    <p><strong>🏆 综合冠军</strong> = 距离 40% + 滞空 35% + 精准 25%</p>
+    <div class="info-box success">
+      <strong>设计思考</strong>
+      三个赛道的最优设计各不相同！距离赛要低阻力高速度，滞空赛要大翼面积低翼载，精准赛要好控制高稳定性。真正的工程设计就是权衡取舍（Trade-off）。
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ======================== PART 4 ======================== -->
+<section id="part4">
+<h2>🎬 四、教学视频推荐</h2>
+<p>以下视频资源经筛选整理，适合课堂播放或学生课后自主学习。分为"科学原理"、"折法教学"、"世界纪录"三类。</p>
+
+<h3>🔴 世界纪录 · 激发兴趣（课堂导入推荐）</h3>
+<ul class="video-list">
+  <li>
+    <div class="title">🏆 98.43 米！中国少年刷新纸飞机最远距离世界纪录</div>
+    <div class="meta">
+      <span class="tag tag-red">B站</span>
+      <span class="tag tag-blue">63.6万播放</span>
+      <span class="tag tag-green">2025.12</span><br>
+      UP主：纸飞君 · 记录刘力文团队用"天问"纸飞机在上海汽车会展中心打破世界纪录全过程。<br>
+      <a href="https://www.bilibili.com/video/BV1SbiKBWEk6/" target="_blank">🔗 观看视频 →</a>
+    </div>
+  </li>
+  <li>
+    <div class="title">⏱️ 逆天设计！超强滞空纸飞机 Star16 — 室内 28.7 秒</div>
+    <div class="meta">
+      <span class="tag tag-red">B站</span>
+      <span class="tag tag-blue">9.8万播放</span>
+      <span class="tag tag-green">2025.10</span><br>
+      UP主：纸飞君 · 展示斜内塞滞空纸飞机的设计与投掷技巧。<br>
+      <a href="https://www.bilibili.com/video/BV1qay1BPEpN/" target="_blank">🔗 观看视频 →</a>
+    </div>
+  </li>
+  <li>
+    <div class="title">📰 看看新闻：98.43 米！上海学生刷新纸飞机最远投掷距离世界纪录</div>
+    <div class="meta">
+      <span class="tag tag-orange">新闻</span>
+      <span class="tag tag-green">2025.12</span><br>
+      新闻报道视频，含团队采访与挑战过程，适合课堂背景介绍。<br>
+      <a href="https://www.kankanews.com/detail/Z5wgD1K9l2D" target="_blank">🔗 观看视频 →</a>
+    </div>
+  </li>
+</ul>
+
+<h3>📐 科学原理 · 知识讲解</h3>
+<ul class="video-list">
+  <li>
+    <div class="title">🔬 中科院物理所：如何折一架世界上飞得最远的纸飞机？</div>
+    <div class="meta">
+      <span class="tag tag-purple">科普</span>
+      <span class="tag tag-green">猎豹纸飞机折法公开</span><br>
+      详细讲解滑翔纸飞机的飞行轨迹、四力平衡、迎角与失速、重心与稳定性等原理。含"猎豹"纸飞机完整折法步骤。<br>
+      <a href="http://news.qq.com/rain/a/20251213A03FN000" target="_blank">🔗 阅读全文 →</a>
+    </div>
+  </li>
+  <li>
+    <div class="title">📖 Smithsonian（史密森尼）：纸飞机背后的科学</div>
+    <div class="meta">
+      <span class="tag tag-blue">英文</span>
+      <span class="tag tag-purple">权威科普</span><br>
+      史密森尼学会官方文章，系统讲解四力（Lift / Weight / Thrust / Drag）、伯努利原理、翼型设计。适合教师备课参考或英语好的学生拓展阅读。<br>
+      <a href="https://www.smithsonianmag.com/blogs/smithsonian-books/2026/01/08/beat-the-winter-blues-by-learning-how-to-fly-smithsonian-paper-airplanes-with-your-kids/" target="_blank">🔗 阅读全文 →</a>
+    </div>
+  </li>
+  <li>
+    <div class="title">🎓 NASA Beginner's Guide to Aerodynamics</div>
+    <div class="meta">
+      <span class="tag tag-blue">英文</span>
+      <span class="tag tag-green">NASA官方</span><br>
+      NASA 格伦研究中心 K-12 航空教育资源，含交互式空气动力学模拟器，可调节翼型参数实时观察升力变化。<br>
+      <a href="https://www.grc.nasa.gov/www/k-12/airplane/" target="_blank">🔗 访问 NASA →</a>
+    </div>
+  </li>
+</ul>
+
+<h3>✂️ 折法教学 · 动手实践</h3>
+<ul class="video-list">
+  <li>
+    <div class="title">🐯 Takuo Toda「老虎战机」折法教学</div>
+    <div class="meta">
+      <span class="tag tag-red">B站</span>
+      <span class="tag tag-green">户田拓夫经典</span><br>
+      日本纸飞机大师户田拓夫设计的 Tiger Jet 折法分步教学。<br>
+      <a href="https://www.bilibili.com/video/BV1NfxDzKEFB/" target="_blank">🔗 观看视频 →</a>
+    </div>
+  </li>
+  <li>
+    <div class="title">✈️ 超仿真歼-16 折法教程</div>
+    <div class="meta">
+      <span class="tag tag-red">B站</span>
+      <span class="tag tag-blue">1.5万播放</span><br>
+      UP主 Reptile爬星人原创，适合对军事模型感兴趣的学生。<br>
+      <a href="https://www.bilibili.com/video/BV1WZB6BJEsR/" target="_blank">🔗 观看视频 →</a>
+    </div>
+  </li>
+  <li>
+    <div class="title">🏆 飞得最远的纸飞机折法（Concorde Style）</div>
+    <div class="meta">
+      <span class="tag tag-blue">英文图文</span>
+      <span class="tag tag-green">8步图文教程</span><br>
+      Show Me Step By Step 网站的 8 步图文教程，含每一步照片，适合打印分发。<br>
+      <a href="https://www.showmestepbystep.com/paper-crafts/how-to-make-a-paper-airplane" target="_blank">🔗 查看教程 →</a>
+    </div>
+  </li>
+</ul>
+
+<h3>🏫 课堂教学案例参考</h3>
+<ul class="video-list">
+  <li>
+    <div class="title">🏫 北京十一中"飞越中轴线"纸飞机大赛</div>
+    <div class="meta">
+      <span class="tag tag-orange">学校活动</span>
+      <span class="tag tag-green">2025.12</span><br>
+      将纸飞机竞赛与北京中轴文化结合，设"最远距离赛"和"最长滞空赛"。含激光测距仪、地面建筑贴纸等创新做法，可作为活动设计参考。<br>
+      <a href="https://peking.bjd.com.cn/content/s694545b1e4b0cd719e9ae4ac.html" target="_blank">🔗 阅读详情 →</a>
+    </div>
+  </li>
+  <li>
+    <div class="title">🔬 华中师范大学：纸飞机里的动力学 — 科普课堂实录</div>
+    <div class="meta">
+      <span class="tag tag-purple">高校科普</span>
+      <span class="tag tag-green">乡村支教</span><br>
+      借助《名侦探柯南》滑翔翼视频引入课题，分组折叠不同机型对比飞行差异。<br>
+      <a href="http://physics.ccnu.edu.cn/info/1092/20968.htm" target="_blank">🔗 阅读详情 →</a>
+    </div>
+  </li>
+</ul>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer style="text-align: center; padding: 2rem 1rem; color: var(--c-text-2); font-size: .82rem; border-top: 1px solid var(--c-border); margin-top: 1rem;">
+  <p>纸飞机科学实验室 · 教学资源包 ｜ 空天科技课程</p>
+  <p>生成日期：2026-09-21 ｜ 视频与图片来源为第三方网站，仅供教学参考使用</p>
+</footer>
+
+</div>
+</body>
+</html>

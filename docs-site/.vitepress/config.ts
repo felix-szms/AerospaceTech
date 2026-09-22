@@ -11,12 +11,15 @@ export default defineConfig({
   cleanUrls: true,
 
   head: [
-    // KaTeX 样式
-    ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css' }],
-    ['meta', { name: 'theme-color', content: '#0a1929' }],
-    // 中文字体优化
-    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }]
+    // KaTeX 样式（本地化：与 npm katex@0.18.1 同版本，不依赖境外 CDN）
+    ['link', { rel: 'stylesheet', href: '/katex/katex.min.css' }],
+    ['meta', { name: 'theme-color', content: '#0a1929' }]
   ],
+
+  // 站点地图（构建时自动生成 sitemap.xml；部署后改为实际域名）
+  sitemap: {
+    hostname: 'https://aerospacetech.example.com'
+  },
 
   // 主题配置
   themeConfig: {
@@ -58,7 +61,7 @@ export default defineConfig({
 
     // 社交链接
     socialLinks: [
-      { icon: 'github', link: 'https://github.com' }
+      { icon: 'github', link: 'https://gitee.com/felixeleven/aerospacetech' }
     ],
 
     // 搜索
@@ -116,7 +119,8 @@ export default defineConfig({
       md.use(katexPlugin, {
         throwOnError: false,
         strict: false,   // 允许中文等 Unicode 字符在公式中
-        trust: true,     // 信任输入（允许 \text 中含中文等）
+        // 拒绝所有需要 trust 的命令（\href/\url 等；本项目公式不含此类命令）
+        trust: () => false,
         output: 'htmlAndMathml'  // 输出 HTML+MathML，兼容性最好
       })
     },
