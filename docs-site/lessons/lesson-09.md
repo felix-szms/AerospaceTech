@@ -178,6 +178,10 @@ $$r = \sqrt[3]{\frac{GMT^2}{4\pi^2}} \approx 42164\,\text{km}$$
 
 ---
 
+## 📺 拓展视频：人类航天八十年
+
+<BiliVideo bvid="BV1rWEv6EEZZ" title="人类航天八十年" caption="从 V-2 火箭到可重复使用航天器：世界航天八十年全景——配合上方历史长廊观看，一个看中国，一个看世界" />
+
 ## 延伸阅读
 
 1. 🎬 NASA Eyes on the Solar System（实时轨道可视化）：https://eyes.nasa.gov/

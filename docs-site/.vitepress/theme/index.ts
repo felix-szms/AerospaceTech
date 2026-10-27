@@ -17,6 +17,7 @@ import ResourceCard from '../components/ResourceCard.vue'
 import LessonTools from '../components/LessonTools.vue'
 import LinkCheck from '../components/LinkCheck.vue'
 import AtmosphereCalculator from '../components/AtmosphereCalculator.vue'
+import BiliVideo from '../components/BiliVideo.vue'
 
 export default {
   extends: DefaultTheme,
@@ -36,5 +37,6 @@ export default {
     app.component('LessonTools', LessonTools)
     app.component('LinkCheck', LinkCheck)
     app.component('AtmosphereCalculator', AtmosphereCalculator)
+    app.component('BiliVideo', BiliVideo)
   }
 } satisfies Theme

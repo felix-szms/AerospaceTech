@@ -209,6 +209,10 @@ const onThumbError = (e) => {
 .slide-image-wrap {
   position: relative;
   width: 100%;
+  /* 宽度同时受"100%"与"高度上限换算"约束：大图不超过视口高度的 55%，
+     保证大图+注释+缩略图在一屏内完整可见 */
+  max-width: min(100%, calc(55vh * 4 / 3));
+  margin: 0 auto;
   aspect-ratio: 4/3;
   background: linear-gradient(135deg, #0a1929, #1a3a5c);
 }
@@ -237,6 +241,9 @@ const onThumbError = (e) => {
   background: var(--vp-c-bg);
   border-top: 1px solid var(--vp-c-divider);
   color: var(--vp-c-text-1);
+  /* 与大图同宽对齐（大图高度受限后变窄） */
+  max-width: min(100%, calc(55vh * 4 / 3));
+  margin: 0 auto;
 }
 
 .slide-year {
