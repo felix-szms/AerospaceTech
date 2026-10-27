@@ -178,7 +178,11 @@ $$r = \sqrt[3]{\frac{GMT^2}{4\pi^2}} \approx 42164\,\text{km}$$
 
 ---
 
-## 📺 拓展视频：人类航天八十年
+## 📺 拓展视频：航天发展史
+
+<BiliVideo bvid="BV19e4y1y7JM" title="中国航天发展简史" caption="从东方红一号到空间站：5 分钟看完中国航天 50 余年" />
+
+<BiliVideo bvid="BV1EQoVB5EMs" title="2026 中国航天日主题宣传片" caption="中国航天日（4 月 24 日）官方宣传片——感受中国航天的现在与未来（约 3 分钟）" />
 
 <BiliVideo bvid="BV1rWEv6EEZZ" title="人类航天八十年" caption="从 V-2 火箭到可重复使用航天器：世界航天八十年全景——配合上方历史长廊观看，一个看中国，一个看世界" />
 
